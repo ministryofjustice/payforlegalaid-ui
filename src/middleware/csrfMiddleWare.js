@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import config from '../config.js';
+import config from '../../config.js';
 
 /**
  * Generates a CSRF token as a 24-byte hex string.

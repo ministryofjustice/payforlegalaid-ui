@@ -1,4 +1,4 @@
-import { initializeDB } from '../utils/sqliteSetup.js';
+import { initializeDB } from '../../utils/sqliteSetup.js';
 
 /**
  * Sets up the database and attaches it to the request object.
