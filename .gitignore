@@ -4,8 +4,8 @@ node_modules/
 # Compiled code
 public/
 
-### IDEA ###
+# IntelliJ IDEA folders
 .idea
 
-### VS Code ###
+# VS Code folders
 .vscode/
