@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { copy } from 'esbuild-plugin-copy';
 import fs from 'fs-extra';
 import path from 'path';
-import { getBuildNumber } from './utils/index.js';
+import { getBuildNumber } from './src/utils/index.js';
 
 // Load environment variables from .env file
 dotenv.config();

@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import { csrfProtection, setupMiddlewares, setupConfig, setupDB } from './middleware';
 import session from 'express-session';
-import { nunjucksSetup, rateLimitSetUp, helmetSetup, axiosMiddleware } from '../utils';
+import { nunjucksSetup, rateLimitSetUp, helmetSetup, axiosMiddleware } from './utils';
 import config from '../config';
 import indexRouter from './routes/index';
 import livereload from 'connect-livereload';
