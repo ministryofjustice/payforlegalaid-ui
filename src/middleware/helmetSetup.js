@@ -2,11 +2,14 @@ import helmet from 'helmet';
 
 /**
  * Sets up Helmet middleware for the Express application to configure Content Security Policy (CSP).
+ * Helmet by default setups various headers. See https://github.com/helmetjs/helmet.
+ * Guide to what CSP covers https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
  *
  * @param {object} app - The Express application instance.
  */
 export const helmetSetup = (app) => {
-  app.use(helmet.contentSecurityPolicy({
+  app.use(helmet({
+    contentSecurityPolicy: {
     directives: {
       defaultSrc: ['\'self\''],
       scriptSrc: [
@@ -23,5 +26,5 @@ export const helmetSetup = (app) => {
       imgSrc: ['\'self\''],
       connectSrc: ['\'self\'']
     }
-  }));
+  }}));
 };

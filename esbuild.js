@@ -9,6 +9,7 @@ import { getBuildNumber } from './src/utils/index.js';
 
 // Load environment variables from .env file
 dotenv.config();
+// Unique build number useful for e.g. cache busting, deployment version tracking 
 const buildNumber = getBuildNumber();
 
 /**

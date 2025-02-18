@@ -1,9 +1,9 @@
 import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
-import { csrfProtection, setupMiddlewares, setupConfig, axiosMiddleware } from './middleware';
+import { axiosMiddleware, csrfProtection, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
 import session from 'express-session';
-import { nunjucksSetup, rateLimitSetUp, helmetSetup } from './utils';
+import { nunjucksSetup, rateLimitSetUp } from './utils';
 import config from '../config';
 import indexRouter from './routes/index';
 import livereload from 'connect-livereload';
