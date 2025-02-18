@@ -5,7 +5,7 @@ import { csrfProtection, setupMiddlewares, setupConfig, setupDB } from './middle
 import session from 'express-session';
 import { nunjucksSetup, rateLimitSetUp, helmetSetup, axiosMiddleware } from '../utils';
 import config from '../config';
-import indexRouter from '../routes/index';
+import indexRouter from './routes/index';
 import livereload from 'connect-livereload';
 
 const app = express();
