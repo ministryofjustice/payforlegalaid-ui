@@ -15,6 +15,8 @@ The UI will authenticate against the Ministry of Justice Microsoft Entra instanc
 This service follows the [GOV.UK Design System](https://design-system.service.gov.uk/) and the [Ministry of Justice (MoJ) Design System](https://design-patterns.service.justice.gov.uk/).
 To achieve this it makes use of the [GOV.UK Frontend](https://github.com/alphagov/govuk-frontend/tree/main) and [MoJ Design System](https://github.com/ministryofjustice/moj-frontend) libraries.
 
+This service has made use of the [GOV.UK Frontend Express](https://github.com/ministryofjustice/govuk-frontend-express/tree/main) skeleton.
+
 ## Environments
 TODO
 
