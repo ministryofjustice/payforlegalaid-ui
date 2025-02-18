@@ -1,7 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
-import { csrfProtection, setupMiddlewares, setupConfig, setupDB } from './middleware';
+import { csrfProtection, setupMiddlewares, setupConfig } from './middleware';
 import session from 'express-session';
 import { nunjucksSetup, rateLimitSetUp, helmetSetup, axiosMiddleware } from './utils';
 import config from '../config';
@@ -17,9 +17,6 @@ const app = express();
 setupMiddlewares(app);
 
 app.use(axiosMiddleware);
-
-// Set up DB to be used in requests
-setupDB(app).then(() => {
 
   /**
    * Response compression setup. Compresses responses unless the 'x-no-compression' header is present.
@@ -123,6 +120,3 @@ setupDB(app).then(() => {
     console.log(`Server running on port ${config.app.port}`);
   });
 
-}).catch(error => {
-  console.error('Failed to set up the database:', error);
-});
