@@ -9,7 +9,6 @@ import rateLimit from 'express-rate-limit';
 export const rateLimitSetUp = (app, config) => {
   /**
    * Rate limiter for general routes.
-   * Limits each IP to 100 requests per 15 minutes.
    */
   const generalLimiter = rateLimit({
     windowMs: config.RATE_WINDOW_MS,
