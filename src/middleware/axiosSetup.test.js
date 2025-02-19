@@ -5,7 +5,7 @@ describe('axiosSetup middleware',  () => {
     let req, res, next;
 
     beforeEach(() => {
-        req = { 'get': jest.fn(), 'protocol': 'http' }
+        req = { get: jest.fn(), protocol: 'http' }
         res = {}
         next = jest.fn(); 
     });
