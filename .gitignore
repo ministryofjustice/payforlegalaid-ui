@@ -6,6 +6,7 @@ node_modules/
 
 # Compiled code
 public/
+coverage/
 
 # IntelliJ IDEA folders
 .idea
