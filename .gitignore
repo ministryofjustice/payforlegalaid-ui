@@ -1,3 +1,6 @@
+# Don't commit environment
+.env
+
 # Dependency directories
 node_modules/
 

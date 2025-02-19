@@ -15,6 +15,7 @@ const config = {
   SERVICE_NAME: process.env.SERVICE_NAME,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
+  COOKIE_SECRET: process.env.COOKIE_SECRET,
   app: {
     port: process.env.PORT || 3000,
     environment: process.env.NODE_ENV || 'development'
