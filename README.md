@@ -21,7 +21,26 @@ This service has made use of the [GOV.UK Frontend Express](https://github.com/mi
 TODO
 
 ## Running the UI locally
-TODO
+### Set local environment variables
+To run the UI locally, you need to setup the .env file. The template example contains the simple values but will not contain any secrets.
+```cp .env.example .env```
+and then set the secret values.
+
+### Align to the Node Version
+If using Node Version Manager (nvm), use the following command to switch to the correct version:
+```
+nvm use
+nvm install
+```
+
+### Install dependencies and run application in development
+```
+npm install
+npm run build
+npm run dev
+```
+Then, load http://localhost:3000/ in your browser to access the app.
+
 
 ## Tests
 TODO
