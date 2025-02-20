@@ -18,7 +18,11 @@ export const getBuildNumber = () => {
  */
 export const getLatestBuildFile = (directory, prefix, extension) => {
   const files = fs.readdirSync(directory);
+  console.log(files)
+
   const pattern = new RegExp(`^${prefix}\\.\\d+\\.${extension}$`);
+  console.log(pattern)
   const matchingFiles = files.filter(file => pattern.test(file));
+  console.log(matchingFiles)
   return matchingFiles.length > 0 ? matchingFiles[0] : '';
 };
