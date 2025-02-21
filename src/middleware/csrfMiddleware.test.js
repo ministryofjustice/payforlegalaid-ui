@@ -1,4 +1,4 @@
-import { csrfProtection, csrfValidate } from "./csrfMiddleware";
+import { csrfProtection, csrfValidate } from "./csrfMiddleware.js";
 import config from '../../config.js';
 
 describe('csrfValidate middleware', () => {
