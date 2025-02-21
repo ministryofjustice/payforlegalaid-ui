@@ -1,0 +1,38 @@
+{
+  "name": "moj-express-skeleton",
+  "version": "0.1.0",
+  "private": true,
+  "main": "public/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node public/app.js",
+    "clean": "rimraf public",
+    "build": "npm run clean && node esbuild.js",
+    "lint": "npx eslint . --ignore-pattern \"node_modules/*\" --ignore-pattern \"public/*\" --fix",
+    "dev": "nodemon --watch src --ext js,scss --exec 'node start-server.js'"
+  },
+  "engines": {
+    "node": "22.13.1"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cookie-parser": "~1.4.6",
+    "dotenv": "^16.4.7",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.0",
+    "govuk-frontend": "^5.8.0",
+    "helmet": "^8.0.0",
+    "middleware-axios": "^2.1.6",
+    "morgan": "~1.10.0",
+    "nunjucks": "^3.2.4"
+  },
+  "devDependencies": {
+    "connect-livereload": "^0.6.1",
+    "esbuild-plugin-copy": "^2.1.1",
+    "esbuild-sass-plugin": "^3.3.1",
+    "eslint-plugin-jsdoc": "^50.4.3",
+    "livereload": "^0.9.3",
+    "nodemon": "^3.1.9",
+    "rimraf": "^6.0.1"
+  }
+}
