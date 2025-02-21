@@ -43,7 +43,9 @@ Then, load http://localhost:3000/ in your browser to access the app.
 
 
 ## Tests
-TODO
+Unit tests are using Jest.
+They can be run with the command
+```npm test```
 
 ## Technology stack
  - Javascript
