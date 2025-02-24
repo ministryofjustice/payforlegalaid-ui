@@ -1,5 +1,5 @@
 import express from 'express';
-//import bodyParser from 'body-parser';
+import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 import { axiosMiddleware, setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
@@ -7,21 +7,13 @@ import session from 'express-session';
 import { nunjucksSetup, rateLimitSetUp } from './utils';
 import config from '../config';
 import indexRouter from './routes/index';
+import csrfTestRoutes from './routes/csrfTest.js';
 import livereload from 'connect-livereload';
 
 const app = express();
 
-// Parse URL-encoded bodies (for form submissions)
-//app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: true,
-    // store: someSessionStore,
-  }));
-
-setupCsrf(app);
+// Parse URL-encoded bodies (for csrf test form submissions)
+app.use(bodyParser.urlencoded({ extended: true }));
 
 /**
  * Sets up common middleware for handling cookies, body parsing, etc.
@@ -59,8 +51,6 @@ app.use(compression({
  * This helps in preventing certain types of attacks like XSS.
  * This is only on in production.
  */
-// app.use(csrfProtection);
-//app.use(setupCsrf);
 
 /**
  * Sets up security headers using Helmet to protect the app from well-known web vulnerabilities.
@@ -81,8 +71,15 @@ app.use(session({
   secret: config.COOKIE_SECRET, // Secret for session encryption
   name: 'sessionId', // Custom session ID cookie name
   resave: false, // Prevents resaving unchanged sessions
-  saveUninitialized: false // Only save sessions that are modified
+  //saveUninitialized: false // Only save sessions that are modified
+  saveUninitialized: true // set to true to test csrf. For production set to true
 }));
+
+// set up csrf
+setupCsrf(app);
+
+// Mount the CSRF test routes
+app.use('/csrf-test', csrfTestRoutes);
 
 /**
  * Sets up Nunjucks as the template engine for the Express app.
@@ -125,27 +122,6 @@ app.use('/', indexRouter);
 if (process.env.NODE_ENV === 'development') {
   app.use(livereload());
 }
-
-// Example route that renders a simple form with the CSRF token embedded.
-// app.get('/', (req, res) => {
-//   const token = typeof req.csrfToken === 'function' ? req.csrfToken() : '';
-//   res.send(`
-//     <html>
-//       <body>
-//         <form action="/test" method="POST">
-//           <input type="hidden" name="_csrf" value="${token}">
-//           <button type="submit">Submit</button>
-//         </form>
-//       </body>
-//     </html>
-//   `);
-// });
-
-// // Route to handle the form submission.
-// app.post('/test', (req, res) => {
-//   res.send('Form submitted successfully!');
-// });
-
 
 /**
  * Starts the Express server on the specified port.
