@@ -1,7 +1,8 @@
 import express from 'express';
+//import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
-import { axiosMiddleware, csrfProtection, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
+import { axiosMiddleware, setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
 import session from 'express-session';
 import { nunjucksSetup, rateLimitSetUp } from './utils';
 import config from '../config';
@@ -9,6 +10,18 @@ import indexRouter from './routes/index';
 import livereload from 'connect-livereload';
 
 const app = express();
+
+// Parse URL-encoded bodies (for form submissions)
+//app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: true,
+    // store: someSessionStore,
+  }));
+
+setupCsrf(app);
 
 /**
  * Sets up common middleware for handling cookies, body parsing, etc.
@@ -46,7 +59,8 @@ app.use(compression({
  * This helps in preventing certain types of attacks like XSS.
  * This is only on in production.
  */
-app.use(csrfProtection);
+// app.use(csrfProtection);
+//app.use(setupCsrf);
 
 /**
  * Sets up security headers using Helmet to protect the app from well-known web vulnerabilities.
@@ -112,6 +126,27 @@ if (process.env.NODE_ENV === 'development') {
   app.use(livereload());
 }
 
+// Example route that renders a simple form with the CSRF token embedded.
+// app.get('/', (req, res) => {
+//   const token = typeof req.csrfToken === 'function' ? req.csrfToken() : '';
+//   res.send(`
+//     <html>
+//       <body>
+//         <form action="/test" method="POST">
+//           <input type="hidden" name="_csrf" value="${token}">
+//           <button type="submit">Submit</button>
+//         </form>
+//       </body>
+//     </html>
+//   `);
+// });
+
+// // Route to handle the form submission.
+// app.post('/test', (req, res) => {
+//   res.send('Form submitted successfully!');
+// });
+
+
 /**
  * Starts the Express server on the specified port.
  * Logs the port number to the console upon successful startup.
@@ -119,4 +154,5 @@ if (process.env.NODE_ENV === 'development') {
 app.listen(config.app.port, () => {
   console.log(`Server running on port ${config.app.port}`);
 });
+
 
