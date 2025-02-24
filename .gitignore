@@ -4,6 +4,8 @@
 # Dependency directories
 node_modules/
 
+coverage/
+
 # Compiled code
 public/
 coverage/
