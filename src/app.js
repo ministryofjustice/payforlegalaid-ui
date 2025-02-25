@@ -47,12 +47,6 @@ app.use(compression({
 }));
 
 /**
- * Middleware function to set up a Content Security Policy (CSP) nonce for each request.
- * This helps in preventing certain types of attacks like XSS.
- * This is only on in production.
- */
-
-/**
  * Sets up security headers using Helmet to protect the app from well-known web vulnerabilities.
  *
  * @param {import('express').Application} app - The Express application instance.
