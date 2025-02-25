@@ -8,7 +8,6 @@ coverage/
 
 # Compiled code
 public/
-coverage/
 
 dist/
 
