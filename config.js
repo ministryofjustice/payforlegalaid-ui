@@ -8,6 +8,8 @@ const config = {
   SERVICE_NAME: process.env.SERVICE_NAME,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   COOKIE_SECRET: process.env.COOKIE_SECRET,
+  API_PROTOCOL: process.env.API_PROTOCOL,
+  API_HOST: process.env.API_HOST,
   app: {
     port: process.env.PORT || 3000,
     environment: process.env.NODE_ENV || 'development'

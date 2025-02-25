@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { create } from 'middleware-axios';
+import config from '../../config.js';
+
 
 /**
  * Axios middleware to attach Axios instance to request object.
@@ -9,8 +11,8 @@ import { create } from 'middleware-axios';
  * @param {Function} next - The next middleware function in the stack.
  */
 export const axiosMiddleware = (req, res, next) => {
-  const protocol = req.protocol;
-  const host = req.get('host');
+  const protocol = config.API_PROTOCOL;
+  const host = config.API_HOST
   //const baseURL = `${protocol}://${host}`;
 const baseURL = `http://localhost:8080`;
 
