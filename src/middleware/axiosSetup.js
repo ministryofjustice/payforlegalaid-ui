@@ -11,7 +11,8 @@ import { create } from 'middleware-axios';
 export const axiosMiddleware = (req, res, next) => {
   const protocol = req.protocol;
   const host = req.get('host');
-  const baseURL = `${protocol}://${host}`;
+  //const baseURL = `${protocol}://${host}`;
+const baseURL = `http://localhost:8080`;
 
   // Create wrapped instance of axios to use normal axios instance
   req.axiosMiddleware = create({
