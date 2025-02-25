@@ -41,4 +41,14 @@ describe('getLatestBuildFile', () => {
         
     })
 
+    it('should return an empty string if directory is empty', () => {
+        
+        fs.readdirSync.mockReturnValue([]);
+
+        let result = getLatestBuildFile('dir', 'prefix', 'ext');
+
+        expect(result).toBe('');
+        
+    })
+
 })
