@@ -1,5 +1,4 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 import { axiosMiddleware, setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
@@ -7,13 +6,9 @@ import session from 'express-session';
 import { nunjucksSetup, rateLimitSetUp } from './utils';
 import config from '../config';
 import indexRouter from './routes/index';
-import csrfTestRoutes from './routes/csrfTest.js';
 import livereload from 'connect-livereload';
 
 const app = express();
-
-// Parse URL-encoded bodies (for csrf test form submissions)
-app.use(bodyParser.urlencoded({ extended: true }));
 
 /**
  * Sets up common middleware for handling cookies, body parsing, etc.
@@ -65,15 +60,11 @@ app.use(session({
   secret: config.COOKIE_SECRET, // Secret for session encryption
   name: 'sessionId', // Custom session ID cookie name
   resave: false, // Prevents resaving unchanged sessions
-  //saveUninitialized: false // Only save sessions that are modified
-  saveUninitialized: true // set to true to test csrf. For production set to true
+  saveUninitialized: false // Only save sessions that are modified
 }));
 
 // set up csrf
 setupCsrf(app);
-
-// Mount the CSRF test routes
-app.use('/csrf-test', csrfTestRoutes);
 
 /**
  * Sets up Nunjucks as the template engine for the Express app.
