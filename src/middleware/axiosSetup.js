@@ -11,7 +11,6 @@ import config from '../../config.js';
  * @param {Function} next - The next middleware function in the stack.
  */
 export const axiosMiddleware = (req, _res, next) => {
- // const axiosInstance = axios.create();
 
   const protocol = config.API_PROTOCOL;
   const host = config.API_HOST
@@ -21,7 +20,6 @@ export const axiosMiddleware = (req, _res, next) => {
   // Create wrapped instance of axios to use normal axios instance
   req.axiosMiddleware = create({
     axiosInstance: axios,
-		//axiosInstance: axiosInstance, // Pass in the axios instance
     baseURL: baseURL,
     timeout: 5000, // Set a timeout value if needed
     headers: {
