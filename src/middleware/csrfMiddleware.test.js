@@ -45,6 +45,17 @@ describe('csrfValidate middleware', () => {
         expect(res.send).toHaveBeenCalledWith("Invalid CSRF token");
     })
 
+    it('should not call next() if csrf cookie name is missing', () => {
+
+        csrfValidate(req, res, next);
+
+        // Should not call next as an error has happened
+        expect(next).toHaveBeenCalledTimes(0);
+
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.send).toHaveBeenCalledWith("Invalid CSRF token");
+    })
+
 })
 
 describe('csrfProtection middleware', () => {
