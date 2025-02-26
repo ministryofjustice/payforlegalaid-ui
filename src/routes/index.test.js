@@ -33,8 +33,6 @@ describe('GET /', () => {
             .expect('Content-Type', /html/)
             .expect(200)
 
-        console.log('response :' + JSON.stringify(response));
-
     })
 
     it('should render error page when api call throws error', async () => {

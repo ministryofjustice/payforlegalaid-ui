@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     // TODO: Remove this when we are displaying results in UI!
     console.log("response is " + JSON.stringify(response.data));
     res.render('main/index');
-  } catch (error) {
+  } catch {
     res.render('main/error', {status: "An error occurred", error: "An error occurred while loading the reports."});
   }
 });
