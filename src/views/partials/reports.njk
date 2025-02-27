@@ -1,0 +1,16 @@
+{% if reports and reports.length %}
+    <section class="govuk-!-margin-bottom-6">
+        <h2 class="govuk-heading-m">Available Reports</h2>
+        <ul class="govuk-list">
+            {% for report in reports %}
+                <li>
+                    <h3 class="govuk-heading-s">{{ report.title }}</h3>
+                    <p class="govuk-body">{{ report.description }}</p>
+                    <a href="{{ report.downloadUrl }}" class="govuk-link">Download CSV</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% else %}
+    <p class="govuk-body">No reports available.</p>
+{% endif %}

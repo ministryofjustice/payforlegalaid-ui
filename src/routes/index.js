@@ -1,9 +1,8 @@
 import express from 'express';
+import { showHomePage } from '../controllers/reportController.js';
 const router = express.Router();
 
-/* GET home page. */
-router.get('/', (req, res) => {
-  res.render('main/index');
-});
+/* GET home page with reports. */
+router.get('/', showHomePage);
 
 export default router;
