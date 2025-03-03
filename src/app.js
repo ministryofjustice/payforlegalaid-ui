@@ -1,7 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
-import { axiosMiddleware, csrfProtection, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
+import { axiosMiddleware, setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
 import session from 'express-session';
 import { nunjucksSetup, rateLimitSetUp } from './utils';
 import config from '../config';
@@ -42,13 +42,6 @@ app.use(compression({
 }));
 
 /**
- * Middleware function to set up a Content Security Policy (CSP) nonce for each request.
- * This helps in preventing certain types of attacks like XSS.
- * This is only on in production.
- */
-app.use(csrfProtection);
-
-/**
  * Sets up security headers using Helmet to protect the app from well-known web vulnerabilities.
  *
  * @param {import('express').Application} app - The Express application instance.
@@ -69,6 +62,9 @@ app.use(session({
   resave: false, // Prevents resaving unchanged sessions
   saveUninitialized: false // Only save sessions that are modified
 }));
+
+// set up csrf
+setupCsrf(app);
 
 /**
  * Sets up Nunjucks as the template engine for the Express app.
@@ -119,4 +115,5 @@ if (process.env.NODE_ENV === 'development') {
 app.listen(config.app.port, () => {
   console.log(`Server running on port ${config.app.port}`);
 });
+
 
