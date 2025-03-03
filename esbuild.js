@@ -43,6 +43,8 @@ const copyAssets = async () => {
  */
 const build = async () => {
   try {
+    // Ensure the dist folder exists
+    await fs.ensureDir(path.resolve('./dist'));
     // List of additional external dependencies
     const additionalExternals = [
       'express',
@@ -59,7 +61,8 @@ const build = async () => {
       'sqlite',
       'axios',
       'middleware-axios',
-      'util'
+      'util',
+      'csrf-sync'
     ];
 
     // Combine core Node.js modules with additional external dependencies
@@ -103,17 +106,35 @@ const build = async () => {
       sourcemap: true,
     };
 
-    // Bundle JavaScript
-    const jsBuildOptions = {
-      entryPoints: ['src/app.js'],
+    // Build the server-side JavaScript (Node/Express code)
+    const serverBuildOptions = {
+      entryPoints: ['src/app.js'],  // Your Express server entry point
       bundle: true,
       platform: 'node',
       target: 'es2020',
       format: 'esm',
       sourcemap: true,
-      minify: true,
+      minify: false,
       external: externalModules,
-      outfile: 'public/app.js',
+      outfile: 'dist/app.js',  // Output server bundle to the dist folder
+    };
+
+
+    await esbuild.build(scssBuildOptions).catch((error) => {
+      console.error('SCSS build failed:', error);
+      process.exit(1);
+    });
+
+    // Build server JS code
+    await esbuild.build(serverBuildOptions).catch((error) => {
+      console.error('Server JS build failed:', error);
+      process.exit(1);
+    });
+
+    // Bundle assets (for additional assets from govuk-frontend)
+    await esbuild.build({
+      entryPoints: [],
+      bundle: true,
       plugins: [
         copy({
           assets: [
@@ -127,16 +148,10 @@ const build = async () => {
             }
           ]
         })
-      ]
-    };
-
-    await esbuild.build(scssBuildOptions).catch((error) => {
-      console.error('SCSS build failed:', error);
-      process.exit(1);
-    });
-
-    await esbuild.build(jsBuildOptions).catch((error) => {
-      console.error('JS build failed:', error);
+      ],
+      outfile: 'public/dummy.js' // dummy file to satisfy esbuild; can be ignored/deleted later.
+    }).catch((error) => {
+      console.error('Asset copy build failed:', error);
       process.exit(1);
     });
 
