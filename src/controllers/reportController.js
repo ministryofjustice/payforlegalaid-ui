@@ -13,7 +13,6 @@ export async function showReportsPage(req, res) {
             // Construct the URL.
             reportDownloadUrl: `/csv/${report.id}`
         }));
-        console.log("Reports: " + JSON.stringify(reports));
         res.render('main/index', { reports });
     } catch (error) {
         console.error("Error fetching reports:", error);
