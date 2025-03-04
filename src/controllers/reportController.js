@@ -1,18 +1,25 @@
-// src/controllers/reportController.js
-import { dummyReports } from '../data/dummyReports.js';
+import { getReports } from '../services/reportService.js';
 
 /**
- * Renders the homepage with the list of dummy reports.
- *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
+ * Renders the homepage with a list of reports.
+ * Uses dummy data that mimics the API response.
  */
-export async function showHomePage(req, res, next) {
+export async function showReportsPage(req, res, next) {
     try {
-        // Pass the dummy reports to the view.
-        res.render('main/index', { reports: dummyReports });
+        const data = await getReports();
+        // Get the download URL for each report using the id
+        const reports = data.reportList.map(report => ({
+            ...report,
+            // Construct the URL.
+            reportDownloadUrl: `/csv/${report.id}`
+        }));
+        console.log("Reports: " + JSON.stringify(reports));
+        res.render('main/index', { reports });
     } catch (error) {
-        next(error);
+        console.error("Error fetching reports:", error);
+        res.render('main/error', {
+            status: "An error occurred",
+            error: "An error occurred while loading the reports."
+        });
     }
 }

@@ -1,8 +1,7 @@
 import express from 'express';
-import { showHomePage } from '../controllers/reportController.js';
+import { showReportsPage } from '../controllers/reportController.js';
 const router = express.Router();
 
-/* GET home page with reports. */
-router.get('/', showHomePage);
+router.get('/', showReportsPage);
 
 export default router;
