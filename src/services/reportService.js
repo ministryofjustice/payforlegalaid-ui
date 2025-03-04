@@ -18,6 +18,7 @@ export async function getReports() {
             {
                 id: 'c2a85f64-5717-4562-b3fc-2c963f007def',
                 reportName: 'CCMS and CIS bank account report with category code',
+                description: 'Summary of cash payments and cash receipts from CIS and CCMS.'
             },
             {
                 id: 'd3b96g75-5717-4562-b3fc-2c963f007ghi',
