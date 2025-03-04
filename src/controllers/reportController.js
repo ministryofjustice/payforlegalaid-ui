@@ -4,7 +4,7 @@ import { getReports } from '../services/reportService.js';
  * Renders the homepage with a list of reports.
  * Uses dummy data that mimics the API response.
  */
-export async function showReportsPage(req, res, next) {
+export async function showReportsPage(req, res) {
     try {
         const data = await getReports();
         // Get the download URL for each report using the id
