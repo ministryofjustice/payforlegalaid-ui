@@ -1,5 +1,6 @@
 import { showReportsPage } from './reportController.js';
 import * as reportService from '../services/reportService.js';
+import config from '../../config.js';
 
 jest.mock('../services/reportService.js');
 
@@ -29,6 +30,8 @@ describe('showReportsPage', () => {
 
         await showReportsPage(req, res, next);
 
+        const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`;
+
         // Expect that the view 'main/index' is rendered with the reportList
         expect(res.render).toHaveBeenCalledWith('main/index', {
             reports: [
@@ -36,7 +39,8 @@ describe('showReportsPage', () => {
                     id: '12345',
                     reportName: 'Dummy Report',
                     description: 'Dummy description',
-                    reportDownloadUrl: '/csv/12345' }
+                    reportDownloadUrl: `${baseURL}/csv/12345`
+                }
             ]
         });
     });

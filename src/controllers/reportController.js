@@ -1,17 +1,18 @@
 import { getReports } from '../services/reportService.js';
+import config from '../../config.js';
 
 /**
  * Renders the homepage with a list of reports.
- * Uses dummy data that mimics the API response.
  */
 export async function showReportsPage(req, res) {
     try {
         const data = await getReports();
         // Get the download URL for each report using the id
+        const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`;
         const reports = data.reportList.map(report => ({
             ...report,
             // Construct the URL.
-            reportDownloadUrl: `/csv/${report.id}`
+            reportDownloadUrl: `${baseURL}/csv/${report.id}`
         }));
         res.render('main/index', { reports });
     } catch (error) {
