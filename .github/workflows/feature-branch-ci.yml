@@ -1,0 +1,70 @@
+name: Feature Branch CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create .env file
+        run: |
+          echo "# Cookie secret - unique, long string to encrypt the cookies" >> .env
+          echo 'COOKIE_SECRET="insert_random_string_here"' >> .env
+          echo "" >> .env
+          echo "# Set rate limiting - how many requests can be made by an IP over a time period" >> .env
+          echo "RATE_LIMIT_MAX=100" >> .env
+          echo "RATE_WINDOW_MS=900000#15 * 60 * 1000 = 900000" >> .env
+          echo "" >> .env
+          echo "# Service details" >> .env
+          echo "SERVICE_NAME='Get Legal Aid Data'" >> .env
+          echo "SERVICE_PHASE='Alpha'" >> .env
+          echo "" >> .env
+          echo "# API details" >> .env
+          echo "API_PROTOCOL='http'" >> .env
+          echo "API_HOST='localhost:8080'" >> .env
+
+      - name: Build the app
+        run: npm run build
+
+      - name: Run tests
+        run: npm run test
+
+  code-quality-checks:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Prettier
+        run: npm run format:check
