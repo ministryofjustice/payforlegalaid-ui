@@ -1,7 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
-import { axiosMiddleware, setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
+import { setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
 import session from 'express-session';
 import { nunjucksSetup, rateLimitSetUp } from './utils';
 import config from '../config';
@@ -22,8 +22,6 @@ app.use((req, res, next) => {
  * @param {import('express').Application} app - The Express application instance.
  */
 setupMiddlewares(app);
-
-app.use(axiosMiddleware);
 
 /**
  * Response compression setup. Compresses responses unless the 'x-no-compression' header is present.
