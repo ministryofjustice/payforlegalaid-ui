@@ -15,11 +15,7 @@
 {% endblock %}
 
 {% block header %}
-  {{ govukHeader({
-    homepageUrl: "#",
-    serviceName: config.SERVICE_NAME,
-    serviceUrl: "#"
-  }) }}
+  {% include "partials/header.njk" %}
 {% endblock %}
 
 {% block beforeContent %}

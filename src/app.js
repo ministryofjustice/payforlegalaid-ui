@@ -7,8 +7,15 @@ import { nunjucksSetup, rateLimitSetUp } from './utils';
 import config from '../config';
 import indexRouter from './routes/index';
 import livereload from 'connect-livereload';
+import crypto from 'crypto';
 
 const app = express();
+
+// Generate a nonce for every request and attach it to res.locals
+app.use((req, res, next) => {
+  res.locals.cspNonce = crypto.randomBytes(16).toString('base64');
+  next();
+});
 
 /**
  * Sets up common middleware for handling cookies, body parsing, etc.
