@@ -11,7 +11,12 @@ import crypto from 'crypto';
 
 const app = express();
 
-// Generate a nonce for every request and attach it to res.locals
+/**
+ * Generate a nonce for every request and attach it to res.locals
+ * We use 16 bytes which is common in cryptographic contexts.
+ * It provides 128 bits of entropy which is considered secure enough for generating nonces.
+ * It’s long enough to make the nonce unpredictable while still being efficient to generate.
+ */
 app.use((req, res, next) => {
   res.locals.cspNonce = crypto.randomBytes(16).toString('base64');
   next();
