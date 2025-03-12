@@ -23,7 +23,14 @@ export const setupCsrf = (app) => {
      * Middleware to enforce CSRF protection on incoming requests.
      * This applies the `csrfSynchronisedProtection` middleware globally.
      */
-    app.use(csrfSynchronisedProtection);
+    app.use((req, _res, next) => {
+        if (req.path == 'auth/redirect'){
+            //TODO not sure this is the best way to do this...
+            next();
+        }
+        csrfSynchronisedProtection
+        next();
+    });
 
     /**
      * Middleware to expose the CSRF token to views.

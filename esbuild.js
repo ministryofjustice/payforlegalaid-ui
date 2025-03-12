@@ -62,7 +62,8 @@ const build = async () => {
       'axios',
       'middleware-axios',
       'util',
-      'csrf-sync'
+      'csrf-sync',
+      '@azure/msal-node',
     ];
 
     // Combine core Node.js modules with additional external dependencies
