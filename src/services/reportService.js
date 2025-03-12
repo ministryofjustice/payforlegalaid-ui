@@ -10,7 +10,7 @@ export async function getReports(accessToken) {
 
     if (config.auth.isEnabled) {
         requestHeaders = {
-            authorization: `Bearer ${accessToken.accessToken}`
+            authorization: `Bearer ${accessToken}`
         }
     }
     const response = await apiClient.get('/reports', {

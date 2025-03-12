@@ -7,7 +7,8 @@ const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`;
 // Create a pre-configured axios instance
 const apiClient = axios.create({
     baseURL,
-    timeout: 5000, // Set a timeout value if needed
+    timeout: 5000, // Set a timeout value if needed,
+    maxRedirects: 0, //Avoid it sending us a lot of html if auth fails
     headers: {
         'Content-Type': 'application/json'
     }

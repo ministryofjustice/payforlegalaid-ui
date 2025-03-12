@@ -1,8 +1,6 @@
 import { getReports } from '../services/reportService.js';
 import config from '../../config.js';
-import { API_DEFAULT_SCOPES, authConfig } from '../auth/authConfig.js';
-import authProvider from '../auth/authProvider.js';
-
+import { getAccessToken } from '../services/getAccessTokenService.js';
 /**
  * Renders the homepage with a list of reports.
  */
@@ -17,19 +15,7 @@ export async function showReportsPage(req, res) {
     } else {
 
         try {
-            //TODO can this be cached??
-            let accessToken = {}
-
-            if (config.auth.isEnabled){
-            //We are logged in, get the access token to call the API
-            const tokenRequest = {
-                scopes: API_DEFAULT_SCOPES,
-                account: req.session.account,
-            };
-
-            accessToken = await authProvider.getMsalInstance(authConfig).acquireTokenSilent(tokenRequest);
-            }
-
+            const accessToken = await getAccessToken(req.session.account)
             const data = await getReports(accessToken);
             // Get the download URL for each report using the id
             const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`;
