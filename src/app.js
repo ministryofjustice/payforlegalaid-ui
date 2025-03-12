@@ -96,7 +96,12 @@ app.use(morgan('dev'));
 /**
  * Register the routes needed for authentication
  */
-app.use('/auth', authRoutes())
+if (config.auth.isEnabled){
+  console.log("Authentication is enabled")
+  app.use('/auth', authRoutes())
+} else {
+  console.log("Authentication is not enabled")
+}
 
 /**
  * Registers the main router for the application.

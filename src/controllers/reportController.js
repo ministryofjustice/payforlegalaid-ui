@@ -7,21 +7,28 @@ import authProvider from '../auth/authProvider.js';
  * Renders the homepage with a list of reports.
  */
 export async function showReportsPage(req, res) {
-    if (!req.session.isAuthenticated) {
+
+    console.log("auth enabled " + config.auth.isEnabled)
+    console.log(typeof config.auth.isEnabled)
+
+    if (config.auth.isEnabled && !req.session.isAuthenticated) {
         console.info("User is not logged in, starting authentication flow")
         res.redirect("/auth/signin")
     } else {
 
         try {
             //TODO can this be cached??
+            let accessToken = {}
 
+            if (config.auth.isEnabled){
             //We are logged in, get the access token to call the API
             const tokenRequest = {
                 scopes: API_DEFAULT_SCOPES,
                 account: req.session.account,
             };
 
-            const accessToken = await authProvider.getMsalInstance(authConfig).acquireTokenSilent(tokenRequest);
+            accessToken = await authProvider.getMsalInstance(authConfig).acquireTokenSilent(tokenRequest);
+            }
 
             const data = await getReports(accessToken);
             // Get the download URL for each report using the id

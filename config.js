@@ -24,6 +24,7 @@ const config = {
     views: 'src/views',  // Path for Nunjucks views
   },
   auth: {
+    isEnabled: process.env.AUTH_ENABLED == "true" ? true : false,
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     cloudInstance: process.env.CLOUD_INSTANCE,
