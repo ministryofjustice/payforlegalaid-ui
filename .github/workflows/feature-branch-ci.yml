@@ -1,13 +1,10 @@
-name: Second Workflow
+name: Feature Branch CI
 
 on:
-  workflow_run:
-    workflows: ["Feature Branch CI"]
-    types:
-      - completed
+  push:
 
 jobs:
-  process:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,4 +12,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run a script
-        run: echo "This is the second workflow running after the first one!"
+        run: echo "This is the first workflow running!"
+
+      - name: Create a dummy artifact
+        run: echo "Dummy artifact" > artifact.txt
+
