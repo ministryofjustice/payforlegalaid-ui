@@ -34,6 +34,10 @@ nvm install
 ```
 
 ### Run the API
+To run the UI locally you will need to be running the [associated API] (https://github.com/ministryofjustice/payforlegalaid]).
+
+### Testing authentication locally
+By default, authentication is disabled locally. To set it you need to update the .env to have `AUTH_ENABLED = true`, and set the `CLOUD_INSTANCE`, `CLIENT_SECRET`, `CLIENT_ID` and `TENANT_ID` to match the Entra ID application `gpfd-dev`. You should only test against the dev instance of Entra ID from your local machine, and not the live instance.
 
 ### Install dependencies and run application in development
 ```
