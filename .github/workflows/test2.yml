@@ -8,10 +8,6 @@ on:
 jobs:
   process:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      actions: read
 
     steps:
       - name: Checkout code
@@ -19,3 +15,9 @@ jobs:
 
       - name: Run a script
         run: echo "This is the first workflow running!"
+
+      - name: Trigger test workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-test
