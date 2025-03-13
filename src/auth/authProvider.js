@@ -2,6 +2,8 @@ import axios from 'axios'
 import * as msal from '@azure/msal-node'
 import { authConfig } from './authConfig'
 
+// Based on the laa-crime-equinity-historical-data-frontend implementation
+
 class AuthProvider {
   cryptoProvider
   authConfig

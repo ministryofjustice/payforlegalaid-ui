@@ -33,6 +33,8 @@ nvm use
 nvm install
 ```
 
+### Run the API
+
 ### Install dependencies and run application in development
 ```
 npm install

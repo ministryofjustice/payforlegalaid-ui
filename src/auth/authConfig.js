@@ -26,7 +26,4 @@ const authConfig = {
 const REDIRECT_URI = config.auth.redirectUri
 const POST_LOGOUT_REDIRECT_URI = config.auth.redirectUri
 
-// This scope in practice encompanies the User.Read graph scope
-const API_DEFAULT_SCOPES = [ `${authConfig.auth.clientId}/.default`]
-
-export { authConfig, REDIRECT_URI, POST_LOGOUT_REDIRECT_URI, API_DEFAULT_SCOPES }
+export { authConfig, REDIRECT_URI, POST_LOGOUT_REDIRECT_URI }

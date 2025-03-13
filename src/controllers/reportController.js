@@ -1,21 +1,22 @@
 import { getReports } from '../services/reportService.js';
 import config from '../../config.js';
 import { getAccessToken } from '../services/getAccessTokenService.js';
+import { isAuthEnabled } from '../auth/authUtils.js';
 /**
  * Renders the homepage with a list of reports.
  */
 export async function showReportsPage(req, res) {
 
-    console.log("auth enabled " + config.auth.isEnabled)
-    console.log(typeof config.auth.isEnabled)
-
-    if (config.auth.isEnabled && !req.session.isAuthenticated) {
+    if (isAuthEnabled() && !req.session.isAuthenticated) {
         console.info("User is not logged in, starting authentication flow")
         res.redirect("/auth/signin")
     } else {
 
         try {
-            const accessToken = await getAccessToken(req.session.account)
+            let accessToken = {}
+            if (isAuthEnabled()){
+                accessToken = await getAccessToken(req.session.account)
+            }
             const data = await getReports(accessToken);
             // Get the download URL for each report using the id
             const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`;

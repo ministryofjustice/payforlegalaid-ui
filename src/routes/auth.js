@@ -1,7 +1,9 @@
 import { Router } from 'express'
 import asyncMiddleware from '../middleware/asyncMiddleware'
 import authProvider from '../auth/authProvider'
-import { REDIRECT_URI, POST_LOGOUT_REDIRECT_URI, API_DEFAULT_SCOPES } from '../auth/authConfig'
+import { REDIRECT_URI, POST_LOGOUT_REDIRECT_URI
+ } from '../auth/authConfig'
+import { getScopes } from '../auth/authUtils'
 
 export default function routes() {
   const router = Router()
@@ -16,7 +18,7 @@ export default function routes() {
   get(
     '/signin',
     authProvider.login({
-      scopes: API_DEFAULT_SCOPES,
+      scopes: getScopes(),
       redirectUri: REDIRECT_URI,
       successRedirect: '/',
     }),
