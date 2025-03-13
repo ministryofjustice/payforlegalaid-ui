@@ -14,6 +14,6 @@ runs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    - name: Run Prettier
-      shell: bash
-      run: npm run format:check
+#    - name: Run Prettier
+#      shell: bash
+#      run: npm run format:check

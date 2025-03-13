@@ -1,4 +1,4 @@
-name: Second Workflow
+name: test
 
 on:
   workflow_run:

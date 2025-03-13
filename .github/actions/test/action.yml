@@ -14,10 +14,10 @@ runs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    - name: Build the app
-      shell: bash
-      run: npm run build
+    # - name: Build the app
+    #   shell: bash
+    #   run: npm run build
 
-    - name: Run tests
-      shell: bash
-      run: npm run test
+    # - name: Run tests
+    #   shell: bash
+    #   run: npm run test

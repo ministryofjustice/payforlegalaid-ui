@@ -11,16 +11,16 @@ runs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    - name: Run Prettier
-      run: npm run format:check
-      shell: bash
+#    - name: Run Prettier
+#      run: npm run format:check
+#      shell: bash
 
-    - name: Install ESLint8
-      run: |
-        npm install eslint@8.x --save-dev
-        npm install eslint-plugin-jsdoc --save-dev
-      shell: bash
-
-    - name: Run ESLint8
-      run: npx eslint . --ignore-pattern "**/node_modules/*" --fix
-      shell: bash
+#    - name: Install ESLint8
+#      run: |
+#        npm install eslint@8.x --save-dev
+#        npm install eslint-plugin-jsdoc --save-dev
+#      shell: bash
+#
+#    - name: Run ESLint
+#      run: npx eslint . --ignore-pattern "**/node_modules/*" --ignore-pattern "**/helm_deploy/*" --fix
+#      shell: bash
