@@ -1,0 +1,72 @@
+name: "Update values.yaml"
+description: "Update the image.tag field in values.yaml with the provided image tag."
+branding:
+  icon: 'package'
+  color: 'green'
+
+inputs:
+  chart-dir:
+    description: "The directory where the Helm chart is located"
+    required: true
+  image-tag:
+    description: "The image tag to update in values.yaml"
+    required: true
+  values-file:
+    description: "Name of values file (default: values.yaml)"
+    default: "values.yaml"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        # Validate chart directory
+        if [ ! -d "${{ inputs.chart-dir }}" ]; then
+          echo "::error::Chart directory does not exist: ${{ inputs.chart-dir }}"
+          exit 1
+        fi
+
+        if [ ! -f "${{ inputs.chart-dir }}/Chart.yaml" ]; then
+          echo "::error::Chart.yaml not found in ${{ inputs.chart-dir }}"
+          exit 1
+        fi
+
+        # Validate image tag format (Docker spec)
+        if ! echo "${{ inputs.image-tag }}" | grep -Eq '^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$'; then
+          echo "::error::Invalid image tag format: ${{ inputs.image-tag }}"
+          exit 1
+        fi
+
+    - name: Verify yq is installed
+      shell: bash
+      run: |
+        if ! command -v yq &> /dev/null; then
+          echo "::error::yq is required but not installed. Install with: 'pip install yq'"
+          exit 1
+        fi
+
+    - name: Update values file
+      shell: bash
+      run: |
+        VALUES_PATH="${{ inputs.chart-dir }}/${{ inputs.values-file }}"
+        
+        if [ ! -f "$VALUES_PATH" ]; then
+          echo "::error::Values file not found: $VALUES_PATH"
+          exit 1
+        fi
+
+        CURRENT_TAG=$(yq e '.image.tag' "$VALUES_PATH")
+        echo "Current image tag: $CURRENT_TAG"
+        echo "New image tag: ${{ inputs.image-tag }}"
+
+        yq e ".image.tag = \"${{ inputs.image-tag }}\"" -i "$VALUES_PATH"
+
+        UPDATED_TAG=$(yq e '.image.tag' "$VALUES_PATH")
+        if [ "$UPDATED_TAG" != "${{ inputs.image-tag }}" ]; then
+          echo "::error::Failed to update image tag in $VALUES_PATH"
+          exit 1
+        fi
+
+        echo "::notice::Successfully updated ${{ inputs.values-file }} from $CURRENT_TAG to $UPDATED_TAG"

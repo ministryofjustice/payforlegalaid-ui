@@ -13,6 +13,7 @@ describe("GET /", () => {
   let app
 
   beforeEach(() => {
+    jest.resetAllMocks()
     app = express()
     app.use("/", router)
   })

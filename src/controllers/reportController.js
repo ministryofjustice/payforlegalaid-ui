@@ -9,18 +9,34 @@ import config from "../../config.js"
  * @returns {void}
  */
 export async function showReportsPage(req, res) {
+  console.log("Starting showReportsPage function")
+
   try {
+    console.log("Attempting to fetch reports...")
     const data = await getReports()
-    // Get the download URL for each report using the id
+    console.log("Successfully fetched reports data , {}", data)
+
     const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`
-    const reports = data.reportList.map(report => ({
-      ...report,
-      // Construct the URL.
-      reportDownloadUrl: `${baseURL}/csv/${report.id}`,
-    }))
+    console.log(`Constructing base URL: ${baseURL}`)
+
+    const reports = data.reportList.map(report => {
+      const downloadUrl = `${baseURL}/csv/${report.id}`
+      console.log(`Generated download URL for report ${report.id}: ${downloadUrl}`)
+      return {
+        ...report,
+        reportDownloadUrl: downloadUrl,
+      }
+    })
+
+    console.log("Rendering reports page with", reports.length, "reports")
     res.render("main/index", { reports })
   } catch (error) {
-    console.error("Error fetching reports:", error)
+    console.error("Error in showReportsPage:", {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+    })
+
     res.render("main/error", {
       status: "An error occurred",
       error: "An error occurred while loading the reports.",
