@@ -1,0 +1,94 @@
+name: Chart Deployment Workflow
+
+on:
+  workflow_call:
+    inputs:
+      app-version:
+        description: 'UI application version'
+        required: true
+        type: string
+      name:
+        description: 'ECR Registry URL'
+        required: true
+        type: string
+      chart-dir:
+        description: 'Path to the Helm chart directory'
+        required: true
+        type: string
+      release-name:
+        description: 'Name of the Helm release'
+        required: true
+        type: string
+      namespace:
+        description: 'Kubernetes namespace for deployment'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment (DEV, UAT, PROD)'
+        required: true
+        type: string
+        default: 'DEV'
+      debug:
+        description: 'Enable debugging'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy-helm-chart:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [DEV]
+        include:
+          - environment: DEV
+            env_name: development
+            repository: ${{ vars.DEV_ECR_REPOSITORY }}
+    environment: ${{ matrix.env_name }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Cloud Platform Kubernetes
+        uses: ./.github/actions/authenticate-k8s
+        with:
+          kube-namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', matrix.environment)] }}
+          kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', matrix.environment)] }}
+          kube-cert: ${{ secrets[format('KUBE_CERT_{0}', matrix.environment)] }}
+          kube-token: ${{ secrets[format('KUBE_TOKEN_{0}', matrix.environment)] }}
+
+      - name: Debug Inputs
+        if: ${{ env.DEBUG }}
+        run: |
+          echo "Registry: ${{ inputs.name }}"
+          echo "Chart Directory: ${{ inputs.chart-dir }}"
+          echo "Release Name: ${{ inputs.release-name }}"
+          echo "Namespace: ${{ inputs.namespace }}"
+
+      - name: Deploy Helm chart
+        run: |
+          set -e  # Fail the script on any error
+          
+          CHART_DIR="${{ inputs.chart-dir }}"
+          RELEASE_NAME="${{ inputs.release-name }}"
+          NAMESPACE="${{ inputs.namespace }}"
+          REPOSITORY="${{ vars[format('{0}_ECR_REPOSITORY', inputs.environment)] }}"
+          
+          helm upgrade --install $RELEASE_NAME $CHART_DIR \
+            --namespace $NAMESPACE \
+            --set image.repository=${{ inputs.name }}/$REPOSITORY \
+            --set image.tag=${{ env.IMAGE_TAG }} \
+            --set build.number=${{ env.BUILD_NUMBER }} \
+            --set app.version=${{ env.APP_VERSION }} \
+            --set git.ref=${{ env.GIT_REF }}
+          
+          echo "Helm chart deployed successfully to ${{ matrix.environment }}"
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          BUILD_NUMBER: 1
+          APP_VERSION: ${{ inputs.app-version }}
+          GIT_REF: ${{ github.sha }}

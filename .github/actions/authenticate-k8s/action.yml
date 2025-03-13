@@ -1,0 +1,52 @@
+name: "Authenticate with Kubernetes"
+description: "Authenticate with a Kubernetes cluster and set the context"
+
+inputs:
+  kube-namespace:
+    description: "The Kubernetes namespace"
+    required: true
+  kube-cluster:
+    description: "The Kubernetes cluster URL"
+    required: true
+  kube-cert:
+    description: "The Kubernetes cluster certificate"
+    required: true
+  kube-token:
+    description: "The Kubernetes authentication token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Write Kubernetes certificate to file
+      shell: bash
+      run: |
+        echo "${{ inputs.kube-cert }}" > ca.crt
+      env:
+        KUBE_CERT: ${{ inputs.kube-cert }}
+
+    - name: Configure Kubernetes cluster
+      shell: bash
+      run: |
+        kubectl config set-cluster ${{ inputs.kube-cluster }} \
+          --certificate-authority=./ca.crt \
+          --server=https://${{ inputs.kube-cluster }}
+
+    - name: Configure Kubernetes user credentials
+      shell: bash
+      run: |
+        kubectl config set-credentials deploy-user \
+          --token=${{ inputs.kube-token }}
+
+    - name: Set Kubernetes context
+      shell: bash
+      run: |
+        kubectl config set-context ${{ inputs.kube-cluster }} \
+          --cluster=${{ inputs.kube-cluster }} \
+          --user=deploy-user \
+          --namespace=${{ inputs.kube-namespace }}
+
+    - name: Use Kubernetes context
+      shell: bash
+      run: |
+        kubectl config use-context ${{ inputs.kube-cluster }}

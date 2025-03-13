@@ -1,0 +1,58 @@
+name: "Create/Update and Deploy Helm Chart"
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create or update Helm chart
+      id: create-update-helm-chart
+      run: |
+        set -e  # Fail the script on any error
+
+        CHART_DIR="./helm_deploy/payforlegalaid-ui"
+        VALUES_FILE="$CHART_DIR/values.yaml"
+
+        if [ ! -d "$CHART_DIR" ]; then
+          echo "Creating new Helm chart in $CHART_DIR..."
+          helm create $CHART_DIR
+        else
+          echo "Helm chart already exists in $CHART_DIR."
+        fi
+
+        echo "Updating values.yaml with new image tag: ${{ env.IMAGE_TAG }}"
+        yq eval ".image.tag = \"${{ env.IMAGE_TAG }}\"" -i $VALUES_FILE
+
+        echo "Updated values.yaml:"
+        cat $VALUES_FILE
+      shell: bash
+
+    - name: Deploy Helm chart
+      id: deploy-helm-chart
+      run: |
+        set -e  # Fail the script on any error
+
+        CHART_DIR="./charts/payforlegalaid-ui"
+        RELEASE_NAME="payforlegalaid-ui"
+        NAMESPACE="laa-get-payments-finance-data-dev"
+
+        echo "Deploying Helm chart..."
+        helm upgrade --install $RELEASE_NAME $CHART_DIR \
+          --namespace $NAMESPACE \
+          --set image.tag=${{ env.IMAGE_TAG }} \
+          --atomic
+        echo "Helm chart deployed successfully!"
+      shell: bash
+
+    - name: Add build summary
+      run: |
+        echo "### Helm Chart Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image Tag:** ${{ env.IMAGE_TAG }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Release Name:** payforlegalaid-ui" >> $GITHUB_STEP_SUMMARY
+        echo "- **Namespace:** laa-get-payments-finance-data-dev" >> $GITHUB_STEP_SUMMARY
+        echo "- **Git Ref:** $(git rev-parse --short HEAD)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Chart Directory:** ./charts/payforlegalaid-ui" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment Status:** Success" >> $GITHUB_STEP_SUMMARY
+      shell: bash
+

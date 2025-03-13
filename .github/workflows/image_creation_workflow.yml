@@ -1,0 +1,114 @@
+name: Image Creation Workflow
+
+on:
+  workflow_call:
+    inputs:
+      build-number:
+        description: 'Build number for the Docker image'
+        required: false
+        type: number
+        default: 1
+      app-version:
+        description: 'Application version for the Docker image'
+        required: false
+        type: string
+        default: '1.0.0'
+      chart-dir:
+        description: 'Path to the Helm chart directory'
+        required: false
+        type: string
+        default: './helm_deploy/payforlegalaid-ui'
+      debug:
+        description: 'Enable debugging'
+        required: false
+        type: boolean
+        default: false
+      environment:
+        description: 'Target environment (DEV, UAT, PROD)'
+        required: true
+        type: string
+        default: 'DEV'
+
+    outputs:
+      registry:
+        description: 'ECR Registry URL'
+        value: ${{ jobs.login-to-container-repository.outputs.registry }}
+      image-tag:
+        description: 'Docker image tag'
+        value: ${{ jobs.login-to-container-repository.outputs.image-tag }}
+      helm-chart-version:
+        description: 'Helm chart version'
+        value: ${{ jobs.create-update-helm-chart.outputs.helm-chart-version }}
+
+jobs:
+
+  login-to-container-repository:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [DEV]
+        include:
+          - environment: DEV
+            env_name: development
+            repository: ${{ vars.DEV_ECR_REPOSITORY }}
+    environment: ${{ matrix.env_name }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('{0}_ECR_ROLE_TO_ASSUME', matrix.environment)] }}
+          aws-region: ${{ vars[format('{0}_ECR_REGION', matrix.environment)] }}
+
+      - name: Login to container repository
+        uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+
+      - name: Build and push Docker image
+        uses: './.github/actions/build-push-docker-image'
+        with:
+          cache-key: ${{ github.sha }}
+          build-number: ${{ inputs.build-number }}
+          app-version: ${{ inputs.app-version }}
+          registry:  ${{ steps.login-ecr.outputs.registry }}
+          repository: ${{ vars[format('{0}_ECR_REPOSITORY', matrix.environment)] }}
+          cookie-secret: fpoobar
+          debug: true
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+      image-tag: ${{ github.sha }}
+
+  create-update-helm-chart:
+    needs: login-to-container-repository
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create or update Helm chart
+        uses: ./.github/actions/create-update-helm-chart
+        with:
+          chart-dir: "./helm_deploy/payforlegalaid-ui"
+          IMAGE_TAG: ${{ github.sha }}
+
+      - name: Debug Helm Chart Output
+        if: ${{ inputs.debug }}
+        run: |
+          echo "Helm Chart Version: ${{ github.sha }}
+
+    outputs:
+      helm-chart-version: ${{ github.sha }}
