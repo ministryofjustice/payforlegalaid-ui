@@ -1,0 +1,63 @@
+name: 'Deployment Summary'
+description: 'Generate deployment verification report'
+inputs:
+  release-name:
+    description: 'Name of the Helm release'
+    required: true
+  namespace:
+    description: 'Kubernetes namespace'
+    required: true
+  release-exists:
+    description: 'Output from verify-helm-release'
+    required: true
+  pods-running:
+    description: 'Output from verify-running-pods'
+    required: true
+  helm-test-passed:
+    description: 'Output from run-helm-tests'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate summary
+      shell: bash
+      run: |
+        if [[ "${{ inputs.release-exists }}" == "true" ]] &&
+           [[ "${{ inputs.pods-running }}" == "true" ]] &&
+           [[ "${{ inputs.helm-test-passed }}" == "true" ]]; then
+            OVERALL_STATUS="✅ SUCCESSFUL DEPLOYMENT"
+            OVERALL_COLOR="green"
+        else
+            OVERALL_STATUS="❌ DEPLOYMENT FAILURE"
+            OVERALL_COLOR="red"
+        fi
+        
+        echo "## 📊 Deployment Verification Summary" >> $GITHUB_STEP_SUMMARY
+        echo "### $OVERALL_STATUS" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "| Check | Status | Details |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ inputs.release-exists }}" == "true" ]]; then
+          echo "| Helm Release Exists | ✅ Success | Release ${{ inputs.release-name }} found in namespace ${{ inputs.namespace }} |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Helm Release Exists | ❌ Failure | Release ${{ inputs.release-name }} NOT FOUND in namespace ${{ inputs.namespace }} |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [[ "${{ inputs.pods-running }}" == "true" ]]; then
+          echo "| Pods Running | ✅ Success | At least one pod in Running state |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Pods Running | ❌ Failure | No pods in Running state |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [[ "${{ inputs.helm-test-passed }}" == "true" ]]; then
+          echo "| Helm Tests | ✅ Success | All test pods completed successfully |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Helm Tests | ❌ Failure | One or more test pods failed |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "*Verified at $(date -u +'%Y-%m-%d %H:%M:%S UTC')*" >> $GITHUB_STEP_SUMMARY

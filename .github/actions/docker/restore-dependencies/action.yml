@@ -1,0 +1,17 @@
+name: "Restore Dependencies from Cache"
+description: "Restore dependencies from cache using actions/cache."
+inputs:
+  cache-key:
+    description: "Cache key for restoring dependencies"
+    required: true
+    type: string
+runs:
+  using: "composite"
+  steps:
+    - name: Restore dependencies from cache
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ inputs.cache-key }}
+        restore-keys: |
+          ${{ runner.os }}-node-

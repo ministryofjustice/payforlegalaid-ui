@@ -1,0 +1,30 @@
+name: 'Verify Helm Release'
+description: 'Check if Helm release exists in namespace'
+inputs:
+  release-name:
+    description: 'Name of the Helm release'
+    required: true
+  namespace:
+    description: 'Kubernetes namespace'
+    required: true
+
+outputs:
+  release_exists:
+    description: 'The Helm release exists'
+    value: ${{ steps.check-release.outputs.release_exists }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check release existence
+      id: check-release
+      shell: bash
+      run: |
+        if helm status ${{ inputs.release-name }} -n ${{ inputs.namespace }} >/dev/null 2>&1; then
+          echo "✅ Helm release ${{ inputs.release-name}} exists"
+          echo "release_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "::error::❌ Helm release ${{ inputs.release-name}} not found"
+          echo "release_exists=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi

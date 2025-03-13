@@ -1,0 +1,39 @@
+name: "Define Image Tag"
+description: "Define the Docker image tag dynamically."
+inputs:
+  app-version:
+    description: "Application version"
+    required: true
+    type: string
+  build-number:
+    description: "Optional build number (defaults to GitHub run ID)"
+    required: false
+    type: string
+    default: ${{ github.run_number }}
+  image-prefix:
+    description: "Optional image name prefix (defaults to 'ui-')"
+    required: false
+    type: string
+    default: "ui-"
+outputs:
+  tag:
+    description: "The generated Docker image tag"
+    value: ${{ steps.define-image-tag.outputs.tag }}
+runs:
+  using: "composite"
+  steps:
+    - name: Define image tag
+      id: define-image-tag
+      shell: bash
+      run: |
+        set -euo pipefail  # Strict mode: fail on error, unset vars, or pipe fails
+
+        SAFE_VERSION=$(echo "${{ inputs.app-version }}" | tr -cd '[:alnum:]._-' | tr ' ' '-')
+        SAFE_PREFIX=$(echo "${{ inputs.image-prefix }}" | tr -cd '[:alnum:]._-' | tr ' ' '-')
+        
+        GIT_SHA=$(git rev-parse HEAD)
+        IMAGE_TAG="${SAFE_PREFIX}${SAFE_VERSION}-${{ inputs.build-number }}-${GIT_SHA}"
+        
+        echo "Generated tag: $IMAGE_TAG"
+        echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+        echo "tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT

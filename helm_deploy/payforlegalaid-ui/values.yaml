@@ -1,0 +1,137 @@
+# Default values for payforlegalaid-ui.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+image:
+  repository: ""
+  pullPolicy: IfNotPresent
+  tag: ""
+build:
+  number: 0
+app:
+  version: ""
+git:
+  ref: ""
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+podAnnotations:
+  kubernetes.io/description: "Pay for Legal Aid UI application"
+
+podLabels:
+  owner: "GPFD_Team"
+  tier: "frontend"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 2000
+  runAsGroup: 3000
+  fsGroup: 4000
+  fsGroupChangePolicy: "OnRootMismatch"
+  seccompProfile:
+    type: RuntimeDefault
+  seLinuxOptions:
+    level: "s0:c123,c456"
+  supplementalGroups: [5000, 5001]
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 2000
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop: ["ALL"]
+
+service:
+  name: payforlegalaid-ui-service
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
+
+namespace: laa-get-payments-finance-data-dev  # Add this field for the release namespace
+
+
+ingress:
+  enabled: true
+  className: "modsec"
+  awsWeight: 50
+  annotations:
+    nginx.ingress.kubernetes.io/enable-modsecurity: "true"
+    nginx.ingress.kubernetes.io/modsecurity-snippet: |
+      SecRuleRemoveById 920120
+      SecRuleEngine On
+      SecRequestBodyLimit 29360128
+      SecDefaultAction "phase:2,pass,log,tag:github_team=crime-billing-online"
+      SecAction "id:900110,phase:1,nolog,pass,t:none,setvar:tx.inbound_anomaly_score_threshold=6"
+      SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
+      SecRuleRemoveById 200002
+      SecRuleRemoveById 200003
+      SecRule REQUEST_URI "@contains /messages" "id:1000,phase:2,pass,nolog,ctl:ruleRemoveById=921110,ctl:ruleRemoveById=933210"
+  ingressClassName: "modsec"
+  cluster:
+    name: green
+    weight: "100"
+  clusterColor: green
+  affinity: cookie
+  rules:
+    - host: payforlegalaid-ui.apps.live.cloud-platform.service.justice.gov.uk
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: payforlegalaid-ui-service
+                port:
+                  number: 3000
+  tls:
+    - hosts:
+        - payforlegalaid-ui.apps.live.cloud-platform.service.justice.gov.uk
+      secretName: tls-certificate
+
+resources: {}
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

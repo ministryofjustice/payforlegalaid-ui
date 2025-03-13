@@ -1,0 +1,116 @@
+name: Verify Node.js Kubernetes Deployment
+
+on:
+  workflow_call:
+    inputs:
+      release-name:
+        description: 'Name of the Helm release to check'
+        required: true
+        type: string
+      namespace:
+        description: 'Kubernetes namespace to check'
+        required: true
+        type: string
+      app-port:
+        description: 'Port your Node.js app listens on'
+        required: true
+        type: string
+        default: 3000
+      environment:
+        description: 'Target environment (DEV, UAT, PROD)'
+        required: true
+        type: string
+        default: 'DEV'
+      debug:
+        description: 'Enable debugging'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  verify-deployment:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'PROD' && 'production' || inputs.environment == 'UAT' && 'UAT' || inputs.environment == 'DEV' && 'development' }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Writes the Kubernetes certificate to a file
+        uses: './.github/actions/k8s/ca'
+        with:
+          kube-cert: ${{ secrets[format('KUBE_CERT_{0}', inputs.environment)] }}
+
+      - name: Configures the Kubernetes cluster in kubectl
+        uses: './.github/actions/k8s/configure'
+        with:
+          kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', inputs.environment)] }}
+
+      - name: Configures Kubernetes authentication credentials
+        uses: './.github/actions/k8s/user'
+        with:
+          kube-token: ${{ secrets[format('KUBE_TOKEN_{0}', inputs.environment)] }}
+
+      - name: Configures the Kubernetes context
+        uses: './.github/actions/k8s/contex'
+        with:
+          kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', inputs.environment)] }}
+          kube-namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}
+
+      - name: Switches to the configured Kubernetes context
+        uses: './.github/actions/k8s/select-context'
+        with:
+          kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', inputs.environment)] }}
+
+      - name: Verify Helm release exists
+        id: check-release
+        uses: './.github/actions/helm/verify'
+        with:
+          release-name: ${{ inputs.release-name }}
+          namespace: ${{ inputs.namespace }}
+
+      - name: Verify pods are running
+        id: check-pods
+        uses: './.github/actions/k8s/verify-running-pods'
+        with:
+          release-name: ${{ inputs.release-name }}
+          namespace: ${{ inputs.namespace }}
+
+      - name: Run Helm tests
+        uses: './.github/actions/helm/test'
+        id: helm-test
+        with:
+          release-name: ${{ inputs.release-name }}
+          namespace: ${{ inputs.namespace }}
+
+      - name: Debug Helm Chart Output
+        if: ${{ inputs.debug }}
+        run: |
+          echo "┌──────────────────────────────────────────────────────────────┐"
+          echo "│ 🐞 DEBUG MODE - DEPLOYMENT VERIFICATION DETAILS 🐞           │"
+          echo "├──────────────────────────────────────────────────────────────┤"
+          echo "│ ℹ️ Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")            │"
+          echo "│ ℹ️ Release: ${{ inputs.release-name }}                       │"
+          echo "│ ℹ️ Namespace: ${{ inputs.namespace }}                        │"
+          echo "│ ℹ️ Release Result: ${{ toJSON(steps.check-release.outputs) }}│"
+          echo "│ ℹ️ Pods Result: ${{ toJSON(steps.check-pods.outputs) }}      │"
+          echo "│ ℹ️ Helm Tests: ${{ toJSON(steps.helm-test.outputs) }}        │"
+          echo "└──────────────────────────────────────────────────────────────┘"
+
+
+      - name: Final status report
+        if: always()
+        uses: './.github/actions/helm/deployment-summary'
+        with:
+          release-name: ${{ inputs.release-name }}
+          namespace: ${{ inputs.namespace }}
+          release-exists: ${{ steps.check-release.outputs.release_exists }}
+          pods-running: ${{ steps.check-pods.outputs.pods_running }}
+          helm-test-passed: ${{ steps.helm-test.outputs.helm_test_passed }}
+
