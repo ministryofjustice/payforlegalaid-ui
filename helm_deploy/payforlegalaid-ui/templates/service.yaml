@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name | default (include "payforlegalaid-ui.fullname" .) }}
+  labels:
+    {{- include "payforlegalaid-ui.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      name: http
+  selector:
+    {{- include "payforlegalaid-ui.selectorLabels" . | nindent 4 }}

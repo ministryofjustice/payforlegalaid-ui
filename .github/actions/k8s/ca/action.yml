@@ -1,0 +1,35 @@
+name: "Write Kubernetes Certificate"
+description: "Writes the Kubernetes certificate to a file"
+
+inputs:
+  kube-cert:
+    description: "The Kubernetes cluster certificate"
+    required: true
+  output-dir:
+    description: "Secure output parent directory"
+    required: false
+    type: string
+    default: "${{ runner.temp }}"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Write Kubernetes certificate to file
+      shell: bash
+      run: |
+        CERT_DIR="$(mktemp -d --tmpdir="${{ runner.temp }}" certs_XXXXXX)"
+        chmod 700 "$CERT_DIR"
+        
+        echo "${{ inputs.kube-cert }}" > "$CERT_DIR/.tmp.crt"
+        mv "$CERT_DIR/.tmp.crt" "$CERT_DIR/ca.crt"
+        chmod 600 "$CERT_DIR/ca.crt"
+    
+        openssl x509 -in "$CERT_DIR/ca.crt" -noout -checkend 0 || {
+          echo "::error::Certificate expired or invalid"
+          rm -rf "$CERT_DIR"
+          exit 1
+        }
+
+        ln -f "$CERT_DIR/ca.crt" ./ca.crt
+        chmod 600 ./ca.crt
+        

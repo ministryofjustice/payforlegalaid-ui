@@ -1,0 +1,9 @@
+name: "Set Up Docker Buildx"
+description: "Set up Docker Buildx for building multi-platform images."
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver: docker-container

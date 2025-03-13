@@ -1,0 +1,71 @@
+name: "Build Summary"
+description: "Generates a detailed, actionable build summary with registry links"
+inputs:
+  registry:
+    description: "Docker registry URL"
+    required: true
+    type: string
+  repository:
+    description: "Docker repository name"
+    required: true
+    type: string
+  image-tag:
+    description: "Docker image tag"
+    required: true
+    type: string
+  build-number:
+    description: "CI build number (or 'none' if not applicable)"
+    required: false
+    type: string
+    default: "none"
+  app-version:
+    description: "Application version"
+    required: true
+    type: string
+  environment:
+    description: "Deployment environment (DEV/UAT/PROD)"
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.registry }}" ]; then
+          echo "::error::Registry URL cannot be empty"
+          exit 1
+        fi
+        if [[ ! "${{ inputs.environment }}" =~ ^(DEV|UAT|PROD)$ ]]; then
+          echo "::error::Invalid environment: ${{ inputs.environment }}"
+          exit 1
+        fi
+
+    - name: Generate build summary
+      shell: bash
+      run: |
+        FULL_SHA=$(echo "${{ inputs.image-tag }}" | rev | cut -d- -f1 | rev)
+        SHORT_SHA=$(echo "$FULL_SHA" | head -c7)
+        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        
+        echo "## Docker Image Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "### Deployment Info" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment:** \`${{ inputs.environment }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **App Version:** \`${{ inputs.app-version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Number:** \`${{ inputs.build-number }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Git Commit:** [\`${SHORT_SHA}\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA)" >> $GITHUB_STEP_SUMMARY
+        
+        echo "### Image Details" >> $GITHUB_STEP_SUMMARY
+        echo "- **Registry:** \`${{ inputs.registry }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Repository:** \`${{ inputs.repository }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Full Tag:** \`${{ inputs.image-tag }}\`" >> $GITHUB_STEP_SUMMARY
+        
+        echo "### Links" >> $GITHUB_STEP_SUMMARY
+        echo "- [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Container Registry](https://${{ inputs.registry }}/v2/${{ inputs.repository }}/tags/list)" >> $GITHUB_STEP_SUMMARY
+        
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "🕒 Built at: ${TIMESTAMP}" >> $GITHUB_STEP_SUMMARY
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

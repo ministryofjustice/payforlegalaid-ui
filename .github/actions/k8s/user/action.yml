@@ -1,0 +1,16 @@
+name: "Configure Kubernetes User"
+description: "Configures Kubernetes authentication credentials"
+
+inputs:
+  kube-token:
+    description: "The Kubernetes authentication token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure Kubernetes user credentials
+      shell: bash
+      run: |
+        kubectl config set-credentials deploy-user \
+          --token=${{ inputs.kube-token }}
