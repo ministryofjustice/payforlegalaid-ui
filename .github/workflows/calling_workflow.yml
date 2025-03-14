@@ -3,28 +3,19 @@ name: Calling Workflow
 on: [push]
 
 jobs:
-  build-and-test-app:
+  feature-branch-build:
     uses: './.github/workflows/feature-branch-ci.yml'
     with:
       name: 'Jimin'
 
-  setup:
-    needs: build-and-test-app
-    runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache-deps.outputs.cache-key }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  feature-branch-contenarisation:
+    needs: feature-branch-build
+    uses: './.github/workflows/callable_workflow.yml'
+    with:
+      name: 'Jimin'
 
-      - name: Setup
-        id: setup
-        uses: ./.github/actions/setup
-        with:
-          cookie-secret: "foo-bar"
-
-  useCallable:
-    needs: setup
+  feature-branch-deployment:
+    needs: feature-branch-build
     uses: './.github/workflows/callable_workflow.yml'
     with:
       name: 'Jimin'
