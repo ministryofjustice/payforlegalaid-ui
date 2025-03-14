@@ -17,12 +17,12 @@ jobs:
       - name: Debug Environment Variables
         run: |
           echo "ROLE: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}"
-          echo "AWS_REGION: ${{ vars.ECR_REGION }}"
+          echo "AWS_REGION: ${{ vars.DEV_ECR_REGION }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.ECR_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.DEV_ECR_REGION }}
 
       - name: Verify AWS Credentials
