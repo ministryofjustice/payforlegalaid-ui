@@ -1,13 +1,18 @@
-import express from 'express';
-import morgan from 'morgan';
-import compression from 'compression';
-import { setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware';
-import session from 'express-session';
-import { nunjucksSetup, rateLimitSetUp } from './utils';
-import config from '../config';
+import express from "express";
+import morgan from "morgan";
+import compression from "compression";
+import {
+  setupCsrf,
+  helmetSetup,
+  setupConfig,
+  setupMiddlewares,
+} from "./middleware";
+import session from "express-session";
+import { nunjucksSetup, rateLimitSetUp } from "./utils";
+import config from "../config";
 import authRoutes from './routes/auth';
-import indexRouter from './routes/index';
-import livereload from 'connect-livereload';
+import indexRouter from "./routes/index";
+import livereload from "connect-livereload";
 
 const app = express();
 
@@ -21,24 +26,26 @@ setupMiddlewares(app);
  * Response compression setup. Compresses responses unless the 'x-no-compression' header is present.
  * Improves the performance of your app by reducing the size of responses.
  */
-app.use(compression({
-  /**
-   * Custom filter for compression.
-   * Prevents compression if the 'x-no-compression' header is set in the request.
-   *
-   * @param {import('express').Request} req - The Express request object.
-   * @param {import('express').Response} res - The Express response object.
-   * @returns {boolean} - Returns true if compression should be applied, false otherwise.
-   */
-  filter: (req, res) => {
-    if (req.headers['x-no-compression']) {
-      // Don't compress responses with this request header
-      return false;
-    }
-    // Fallback to the standard filter function
-    return compression.filter(req, res);
-  }
-}));
+app.use(
+  compression({
+    /**
+     * Custom filter for compression.
+     * Prevents compression if the 'x-no-compression' header is set in the request.
+     *
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {boolean} - Returns true if compression should be applied, false otherwise.
+     */
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) {
+        // Don't compress responses with this request header
+        return false;
+      }
+      // Fallback to the standard filter function
+      return compression.filter(req, res);
+    },
+  }),
+);
 
 /**
  * Sets up security headers using Helmet to protect the app from well-known web vulnerabilities.
@@ -48,19 +55,21 @@ app.use(compression({
 helmetSetup(app);
 
 // Reducing fingerprinting by removing the 'x-powered-by' header
-app.disable('x-powered-by');
+app.disable("x-powered-by");
 
 /**
  * Set up cookie security for sessions.
  * Configures session management with secure cookie settings and session IDs.
  */
-app.set('trust proxy', 1); // trust first proxy
-app.use(session({
-  secret: config.COOKIE_SECRET, // Secret for session encryption
-  name: 'sessionId', // Custom session ID cookie name
-  resave: false, // Prevents resaving unchanged sessions
-  saveUninitialized: false // Only save sessions that are modified
-}));
+app.set("trust proxy", 1); // trust first proxy
+app.use(
+  session({
+    secret: config.COOKIE_SECRET, // Secret for session encryption
+    name: "sessionId", // Custom session ID cookie name
+    resave: false, // Prevents resaving unchanged sessions
+    saveUninitialized: false, // Only save sessions that are modified
+  }),
+);
 
 // set up csrf
 setupCsrf(app);
@@ -91,7 +100,7 @@ setupConfig(app);
 /**
  * Sets up request logging using Morgan for better debugging and analysis.
  */
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
 /**
  * Register the routes needed for authentication
@@ -107,13 +116,13 @@ if (config.auth.isEnabled){
  * Registers the main router for the application.
  * Serves routes defined in the 'indexRouter' module.
  */
-app.use('/', indexRouter);
+app.use("/", indexRouter);
 
 /**
  * Enables live-reload middleware in development mode to automatically reload
  * the server when changes are detected.
  */
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   app.use(livereload());
 }
 
@@ -124,5 +133,3 @@ if (process.env.NODE_ENV === 'development') {
 app.listen(config.app.port, () => {
   console.log(`Server running on port ${config.app.port}`);
 });
-
-

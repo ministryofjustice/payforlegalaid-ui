@@ -1,9 +1,13 @@
-import { getReports } from '../services/reportService.js';
-import config from '../../config.js';
+import { getReports } from "../services/reportService.js";
+import config from "../../config.js";
 import { getAccessToken } from '../services/getAccessTokenService.js';
 import { isAuthEnabled } from '../auth/authUtils.js';
 /**
  * Renders the homepage with a list of reports.
+ *
+ * @param {object} req - The request object, containing information about the HTTP request.
+ * @param {object} res - The response object, used to send back the desired HTTP response.
+ * @returns {void}
  */
 export async function showReportsPage(req, res) {
 
