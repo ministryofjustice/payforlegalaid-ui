@@ -10,21 +10,19 @@ jobs:
       id-token: write
       contents: read
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  feature-branch-build:
+    uses: './.github/workflows/feature-branch-ci.yml'
+    with:
+      name: 'Jimin'
 
-      - name: Debug Environment Variables
-        run: |
-          echo "ROLE: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}"
-          echo "AWS_REGION: ${{ vars.DEV_ECR_REGION }}"
+  feature-branch-containerisation:
+    needs: feature-branch-build
+    uses: './.github/workflows/callable_workflow.yml'
+    with:
+      name: 'Jimin'
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}
-          aws-region: ${{ vars.DEV_ECR_REGION }}
-
-      - name: Verify AWS Credentials
-        run: |
-          aws sts get-caller-identity
+  feature-branch-deployment:
+    needs: feature-branch-containerisation
+    uses: './.github/workflows/image_creation_workflow.yml'
+    with:
+      name: 'Jimin'
