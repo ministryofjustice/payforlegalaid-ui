@@ -3,12 +3,6 @@ name: Test AWS Credentials
 on: [push]
 
 jobs:
-  test-aws-credentials:
-    environment: development
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
 
   feature-branch-build:
     uses: './.github/workflows/feature-branch-ci.yml'
