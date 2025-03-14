@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   build-and-test-app:
-    needs: setup
     uses: './.github/workflows/feature-branch-ci.yml'
     with:
       name: 'Jimin'
