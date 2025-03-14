@@ -8,14 +8,14 @@ jobs:
     with:
       name: 'Jimin'
 
-  feature-branch-contenarisation:
+  feature-branch-containerisation:
     needs: feature-branch-build
     uses: './.github/workflows/callable_workflow.yml'
     with:
       name: 'Jimin'
 
   feature-branch-deployment:
-    needs: feature-branch-build
+    needs: feature-branch-containerisation
     uses: './.github/workflows/callable_workflow.yml'
     with:
       name: 'Jimin'
