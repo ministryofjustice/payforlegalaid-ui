@@ -7,10 +7,6 @@ on:
         description: 'Name for greeting'
         required: true
         type: 'string'
-    outputs:
-      greetingMessage:
-        description: 'Generated greeting message'
-        value: ${{ steps.greeting.outputs.message }}
 
 jobs:
   greet:
