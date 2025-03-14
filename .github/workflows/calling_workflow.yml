@@ -3,7 +3,14 @@ name: Calling Workflow
 on: [push]
 
 jobs:
+  build-and-test-app:
+    needs: setup
+    uses: './.github/workflows/feature-branch-ci.yml'
+    with:
+      name: 'Jimin'
+
   setup:
+    needs: build-and-test-app
     runs-on: ubuntu-latest
     outputs:
       cache-key: ${{ steps.cache-deps.outputs.cache-key }}
@@ -22,3 +29,4 @@ jobs:
     uses: './.github/workflows/callable_workflow.yml'
     with:
       name: 'Jimin'
+
