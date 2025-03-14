@@ -18,6 +18,7 @@ jobs:
           cookie-secret: "foo-bar"
 
   useCallable:
+    needs: setup
     uses: './.github/workflows/callable_workflow.yml'
     with:
       name: 'Jimin'
