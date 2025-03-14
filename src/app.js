@@ -10,6 +10,7 @@ import {
 import session from "express-session";
 import { nunjucksSetup, rateLimitSetUp } from "./utils";
 import config from "../config";
+import authRoutes from './routes/auth';
 import indexRouter from "./routes/index";
 import livereload from "connect-livereload";
 
@@ -100,6 +101,16 @@ setupConfig(app);
  * Sets up request logging using Morgan for better debugging and analysis.
  */
 app.use(morgan("dev"));
+
+/**
+ * Register the routes needed for authentication
+ */
+if (config.auth.isEnabled){
+  console.log("Authentication is enabled")
+  app.use('/auth', authRoutes())
+} else {
+  console.log("Authentication is not enabled")
+}
 
 /**
  * Registers the main router for the application.

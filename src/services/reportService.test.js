@@ -1,4 +1,11 @@
 import { getReports } from "./reportService.js";
+import apiClient from '../api/apiClient.js';
+import { isAuthEnabled } from '../auth/authUtils.js';
+
+jest.mock('../api/apiClient.js');
+jest.mock('../auth/authUtils', () => ({
+    isAuthEnabled: jest.fn(),  // Mock the function
+}));
 
 // Mock the reportService module
 jest.mock("./reportService.js", () => ({
@@ -22,19 +29,57 @@ jest.mock("./reportService.js", () => ({
 
 describe("reportService", () => {
   it('should return an object with a "reportList" array', async () => {
+        isAuthEnabled.mockReturnValue(false);
+
+        const dummyData = {
+            reportList: [
+                {
+                    id: '12345',
+                    reportName: 'Dummy Report',
+                    description: 'Dummy description'
+                }
+            ]
+        };
+
+        apiClient.get.mockResolvedValue({ data: dummyData });
+
     const result = await getReports();
 
-    // Ensure 'reportList' exists
-    expect(result).toHaveProperty("reportList");
-    // Ensure 'reportList' is an array
-    expect(Array.isArray(result.reportList)).toBe(true);
+        // Ensure 'reportList' exists
+        expect(result).toEqual(dummyData);
 
-    // Check that it has at least one item
-    expect(result.reportList.length).toBeGreaterThan(0);
+        expect(apiClient.get).toHaveBeenCalledWith('/reports', {
+            headers: {}
+        })
+    });
 
-    const firstReport = result.reportList[0];
-    expect(firstReport).toHaveProperty("id");
-    expect(firstReport).toHaveProperty("reportName");
-    expect(firstReport).toHaveProperty("description");
-  });
+    it('should pass in access token if auth enabled', async () => {
+        isAuthEnabled.mockReturnValue(true);
+
+        const dummyData = {
+            reportList: [
+                {
+                    id: '12345',
+                    reportName: 'Dummy Report',
+                    description: 'Dummy description'
+                }
+            ]
+        };
+
+        apiClient.get.mockResolvedValue({ data: dummyData });
+
+        const result = await getReports("1234");
+
+        expect(result).toEqual(dummyData);
+
+        expect(apiClient.get).toHaveBeenCalledWith('/reports', {
+            headers: {
+                "authorization": "Bearer 1234"
+
+            }
+        })
+
+    });
+
+
 });

@@ -3,8 +3,12 @@ import express from "express";
 import { nunjucksSetup } from "../utils";
 import indexRouter from "../routes/index";
 import * as reportService from "../services/reportService.js";
+import { isAuthEnabled } from '../auth/authUtils.js';
 
 jest.mock("../services/reportService.js");
+jest.mock('../auth/authUtils', () => ({
+    isAuthEnabled: jest.fn(),
+}));
 
 describe("GET /", () => {
   let app;
@@ -22,6 +26,8 @@ describe("GET /", () => {
 
   it("should render index page when getReports succeeds", async () => {
     // Mock the service to return dummy data
+        isAuthEnabled.mockReturnValue(false);
+
     reportService.getReports.mockResolvedValue({
       reportList: [
         {
@@ -33,6 +39,7 @@ describe("GET /", () => {
     });
 
     const response = await request(app)
+        
       .get("/")
       .expect("Content-Type", /html/)
       .expect(200);
@@ -42,6 +49,8 @@ describe("GET /", () => {
   });
 
   it("should render error page when getReports throws error", async () => {
+        isAuthEnabled.mockReturnValue(false);
+        
     // Mock the service to reject
     reportService.getReports.mockRejectedValue(
       new Error("API connection issue"),

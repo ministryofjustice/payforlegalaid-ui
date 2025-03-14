@@ -23,6 +23,15 @@ const config = {
     static: "public", // Path for serving static files
     views: "src/views", // Path for Nunjucks views
   },
+  auth: {
+    isEnabled: process.env.AUTH_ENABLED == "true" ? true : false,
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    cloudInstance: process.env.CLOUD_INSTANCE,
+    tenantId: process.env.TENANT_ID,
+    redirectUri: process.env.REDIRECT_URI,
+    postLogoutRedirectUri: process.env.POST_LOGOUT_REDIRECT_URI,
+  },
 };
 
 export default config;

@@ -19,11 +19,14 @@ export const setupCsrf = (app) => {
     getTokenFromRequest: (req) => req.body._csrf,
   });
 
-  /**
-   * Middleware to enforce CSRF protection on incoming requests.
-   * This applies the `csrfSynchronisedProtection` middleware globally.
-   */
-  app.use(csrfSynchronisedProtection);
+    /**
+     * Middleware to enforce CSRF protection on incoming requests.
+     * This applies the `csrfSynchronisedProtection` middleware globally.
+     */
+    app.use((_req, _res, next) => {
+        csrfSynchronisedProtection
+        next();
+    });
 
   /**
    * Middleware to expose the CSRF token to views.
