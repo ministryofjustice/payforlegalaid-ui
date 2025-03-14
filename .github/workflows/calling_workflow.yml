@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   test-aws-credentials:
+    environment: development
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -12,6 +13,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Debug Environment Variables
+        run: |
+          echo "ROLE: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}"
+          echo "AWS_REGION: ${{ vars.ECR_REGION }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
