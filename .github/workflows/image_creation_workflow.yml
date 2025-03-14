@@ -1,0 +1,28 @@
+name: Image Creation Workflow
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: 'Name for greeting'
+        required: true
+        type: 'string'
+
+jobs:
+
+  test-aws-credentials:
+    environment: development
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.DEV_ECR_REGION }}
