@@ -3,6 +3,20 @@ name: Calling Workflow
 on: [push]
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-deps.outputs.cache-key }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          cookie-secret: "foo-bar"
+
   useCallable:
     uses: './.github/workflows/callable_workflow.yml'
     with:
