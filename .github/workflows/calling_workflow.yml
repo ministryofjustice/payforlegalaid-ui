@@ -16,7 +16,6 @@ jobs:
 
   feature-branch-deployment:
     needs: feature-branch-containerisation
-    uses: './.github/workflows/callable_workflow.yml'
+    uses: './.github/workflows/image_creation_workflow.yml'
     with:
       name: 'Jimin'
-
