@@ -17,7 +17,7 @@ jobs:
         with:
           cookie-secret: "foo-bar"
 
-      - name useCallable:
-        uses: './.github/workflows/callable_workflow.yml'
-        with:
-          name: 'Jimin'
+  useCallable:
+    uses: './.github/workflows/callable_workflow.yml'
+    with:
+      name: 'Jimin'
