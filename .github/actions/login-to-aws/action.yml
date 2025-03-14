@@ -1,13 +1,12 @@
 name: Login to AWS
+description: 'Login to AWS using OIDC'
 
 runs:
   using: 'composite'
-
   steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Assume role in Cloud Platform
+    - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ env.ROLE }}

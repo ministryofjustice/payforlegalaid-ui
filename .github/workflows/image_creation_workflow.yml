@@ -29,11 +29,3 @@ jobs:
         env:
           ROLE: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}
           AWS_REGION: ${{ vars.DEV_ECR_REGION }}
-
-#      - name: Build the docker image and push it to the repository
-#        uses: './.github/actions/build-push-docker-image'
-#        env:
-#          REPOSITORY: ${{ vars.DEV_ECR_REPOSITORY }}
-#          IMAGE_TAG: ${{ github.sha }}
-#          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-
