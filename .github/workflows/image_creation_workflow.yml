@@ -24,7 +24,7 @@ jobs:
       - name: Checkout Github Repository
         uses: actions/checkout@v4
 
-      - uses: './.github/login-to-aws'
+      - uses: './.github/actions/login-to-aws'
         env:
           ROLE: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}
           AWS_REGION: ${{ vars.DEV_ECR_REGION }}
@@ -34,7 +34,7 @@ jobs:
         id: login-ecr
 
       - name: Build the docker image and push it to the repository
-        uses: './.github/build-push-docker-image'
+        uses: './.github/actions/build-push-docker-image'
         env:
           REPOSITORY: ${{ vars.DEV_ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
