@@ -9,7 +9,8 @@ on:
         type: 'string'
 
 jobs:
-  build-and-deploy-to-dev:
+
+  test-aws-credentials:
     environment: development
     runs-on: ubuntu-latest
     permissions:
@@ -20,17 +21,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Debug Environment Variables
-        run: |
-          echo "ROLE: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}"
-          echo "AWS_REGION: ${{ vars.DEV_ECR_REGION }}"
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.DEV_ECR_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.DEV_ECR_REGION }}
-
-      - name: Verify AWS Credentials
-        run: |
-          aws sts get-caller-identity
