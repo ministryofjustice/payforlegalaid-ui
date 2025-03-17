@@ -18,5 +18,6 @@ jobs:
   feature-branch-deployment:
     needs: feature-branch-containerisation
     uses: './.github/workflows/image_creation_workflow.yml'
+    secrets: inherit
     with:
       name: 'Jimin'
