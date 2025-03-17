@@ -27,3 +27,20 @@ runs:
         echo "Updated values.yaml:"
         cat $VALUES_FILE
       shell: bash
+
+    - name: Deploy Helm chart
+      id: deploy-helm-chart
+      run: |
+        set -e  # Fail the script on any error
+
+        CHART_DIR="./charts/payforlegalaid-ui"
+        RELEASE_NAME="payforlegalaid-ui"
+        NAMESPACE="laa-get-payments-finance-data-dev"
+
+        echo "Deploying Helm chart..."
+        helm upgrade --install $RELEASE_NAME $CHART_DIR \
+          --namespace $NAMESPACE \
+          --set image.tag=${{ env.IMAGE_TAG }} \
+          --atomic
+        echo "Helm chart deployed successfully!"
+      shell: bash
