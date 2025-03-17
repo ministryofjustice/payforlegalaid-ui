@@ -1,0 +1,14 @@
+name: "Create/Update and Deploy Helm Chart"
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Helm
+      id: setup-helm
+      run: |
+        echo "Helm version: $(helm version)"
+      shell: bash
+
