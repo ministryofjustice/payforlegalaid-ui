@@ -6,9 +6,24 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Helm
-      id: setup-helm
+    - name: Create or update Helm chart
+      id: create-update-helm-chart
       run: |
-        echo "Helm version: $(helm version)"
-      shell: bash
+        set -e  # Fail the script on any error
 
+        CHART_DIR="./helm_deploy/payforlegalaid-ui"
+        VALUES_FILE="$CHART_DIR/values.yaml"
+
+        if [ ! -d "$CHART_DIR" ]; then
+          echo "Creating new Helm chart in $CHART_DIR..."
+          helm create $CHART_DIR
+        else
+          echo "Helm chart already exists in $CHART_DIR."
+        fi
+
+        echo "Updating values.yaml with new image tag: ${{ env.IMAGE_TAG }}"
+        yq eval ".image.tag = \"${{ env.IMAGE_TAG }}\"" -i $VALUES_FILE
+
+        echo "Updated values.yaml:"
+        cat $VALUES_FILE
+      shell: bash
