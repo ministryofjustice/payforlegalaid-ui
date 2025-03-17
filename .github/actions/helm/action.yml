@@ -44,18 +44,5 @@ runs:
         
         echo "${CERT_DEV}" > ca.crt
         kubectl config set-cluster ${KUBE_CLUSTER} --certificate-authority=./ca.crt --server=https://${KUBE_CLUSTER}
-#        kubectl config set-credentials deploy-user --token=${KUBE_TOKEN}
-#        kubectl config set-context ${KUBE_CLUSTER} --cluster=${KUBE_CLUSTER} --user=deploy-user --namespace=${KUBE_NAMESPACE}
-#        kubectl config use-context ${KUBE_CLUSTER}
-#
-#        CHART_DIR="./charts/payforlegalaid-ui"
-#        RELEASE_NAME="payforlegalaid-ui"
-#        NAMESPACE="laa-get-payments-finance-data-dev"
-#
-#        echo "Deploying Helm chart..."
-#        helm upgrade --install payforlegalaid-ui ./payforlegalaid-ui \
-#          --namespace laa-get-payments-finance-data-dev \
-#          --set image.tag=${{ env.IMAGE_TAG }} \
-#          --atomic
         echo "Helm chart deployed successfully!"
       shell: bash
