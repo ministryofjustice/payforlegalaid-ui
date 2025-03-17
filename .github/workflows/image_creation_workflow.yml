@@ -50,5 +50,6 @@ jobs:
           KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE_DEV }}
           KUBE_CLUSTER: ${{ secrets.KUBE_CLUSTER_DEV }}
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          KUBE_TOKEN_DEV: ${{ secrets.KUBE_TOKEN_DEV }}
           REPOSITORY: ${{ vars.DEV_ECR_REPOSITORY }}
           NAMESPACE: ${{ secrets.KUBE_NAMESPACE_DEV }}

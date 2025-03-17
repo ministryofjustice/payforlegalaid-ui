@@ -36,6 +36,7 @@ runs:
         REGISTRY: ${{ env.registry }}
         REPOSITORY: ${{ env.DEV_ECR_REPOSITORY }}
         NAMESPACE: ${{ env.KUBE_NAMESPACE_DEV }}
+        KUBE_TOKEN_DEV: ${{ env.KUBE_TOKEN_DEV }}
         ENV_NAME: dev
       run: |
         set -e  # Fail the script on any error
