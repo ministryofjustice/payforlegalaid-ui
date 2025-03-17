@@ -11,6 +11,9 @@ runs:
         restore-keys: |
           ${{ runner.os }}-node-
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Define image tag with UI
       id: define-image-tag
       run: |
@@ -21,12 +24,12 @@ runs:
 
     - name: Build and push Docker image to container repository
       run: |
-        docker build \
+        docker buildx build . \
           --build-arg BUILD_NUMBER=${{ inputs.build-number }} \
           --build-arg APP_VERSION=${{ inputs.app-version }} \
           --build-arg GIT_REF=$(git rev-parse --short HEAD) \
-          -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} .
-        docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+          -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} \
+          --push
       env:
         REGISTRY: ${{ env.REGISTRY }}
         REPOSITORY: ${{ env.REPOSITORY }}
