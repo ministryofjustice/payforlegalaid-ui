@@ -42,7 +42,7 @@ runs:
         set -e  # Fail the script on any error
         
         kubectl config set-cluster ${KUBE_CLUSTER} --certificate-authority=./ca.crt --server=https://${KUBE_CLUSTER}
-        kubectl config set-credentials deploy-user --token=${{ KUBE_TOKEN }}
+        kubectl config set-credentials deploy-user --token=${KUBE_TOKEN}
         kubectl config set-context ${KUBE_CLUSTER} --cluster=${KUBE_CLUSTER} --user=deploy-user --namespace=${KUBE_NAMESPACE}
         kubectl config use-context ${KUBE_CLUSTER}
 
