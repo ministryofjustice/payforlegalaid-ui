@@ -1,0 +1,23 @@
+name: "Build and push docker image"
+runs:
+  using: "composite"
+
+  steps:
+    - name: Restore dependencies from cache
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ inputs.cache-key }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Build and push Docker image to container repository
+      run: |
+        docker build --build-arg BUILD_NUMBER=1 --build-arg APP_VERSION=1.0.0 --build-arg GIT_REF=abc123 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      env:
+        REGISTRY: ${{ env.REGISTRY }}
+        REPOSITORY: ${{ env.REPOSITORY }}
+        IMAGE_TAG: ${{ env.IMAGE_TAG }}
+      shell: bash
