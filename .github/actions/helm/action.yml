@@ -38,8 +38,8 @@ runs:
         NAMESPACE="laa-get-payments-finance-data-dev"
 
         echo "Deploying Helm chart..."
-        helm upgrade --install $RELEASE_NAME $CHART_DIR \
-          --namespace $NAMESPACE \
+        helm upgrade --install payforlegalaid-ui ./payforlegalaid-ui \
+          --namespace laa-get-payments-finance-data-dev \
           --set image.tag=${{ env.IMAGE_TAG }} \
           --atomic
         echo "Helm chart deployed successfully!"
