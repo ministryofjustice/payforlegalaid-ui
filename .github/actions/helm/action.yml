@@ -31,18 +31,17 @@ runs:
     - name: Deploy Helm chart
       id: deploy-helm-chart
       env:
-        KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE_DEV }}
-        KUBE_CLUSTER: ${{ secrets.KUBE_CLUSTER_DEV }}
-        IMAGE_TAG: ${{ github.sha }}
-        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        REPOSITORY: ${{ vars.DEV_ECR_REPOSITORY }}
-        NAMESPACE: ${{ secrets.KUBE_NAMESPACE_DEV }}
+        KUBE_NAMESPACE: ${{ env.KUBE_NAMESPACE_DEV }}
+        KUBE_CLUSTER: ${{ env.KUBE_CLUSTER_DEV }}
+        REGISTRY: ${{ env.registry }}
+        REPOSITORY: ${{ env.DEV_ECR_REPOSITORY }}
+        NAMESPACE: ${{ env.KUBE_NAMESPACE_DEV }}
         ENV_NAME: dev
       run: |
         set -e  # Fail the script on any error
         
         kubectl config set-cluster ${KUBE_CLUSTER} --certificate-authority=./ca.crt --server=https://${KUBE_CLUSTER}
-        kubectl config set-credentials deploy-user --token=${{ secrets.KUBE_TOKEN_DEV }}
+        kubectl config set-credentials deploy-user --token=${{ KUBE_TOKEN_DEV }}
         kubectl config set-context ${KUBE_CLUSTER} --cluster=${KUBE_CLUSTER} --user=deploy-user --namespace=${KUBE_NAMESPACE}
         kubectl config use-context ${KUBE_CLUSTER}
 
