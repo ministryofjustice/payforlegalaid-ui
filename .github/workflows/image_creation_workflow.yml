@@ -33,7 +33,7 @@ jobs:
         id: login-ecr
 
       - name: Build the docker image and push it to the repository
-        uses: './.github/build-push-docker-image'
+        uses: './.github/actions/build-push-docker-image'
         env:
           REPOSITORY: ${{ vars.DEV_ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
