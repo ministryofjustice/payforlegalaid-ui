@@ -32,9 +32,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         id: login-ecr
 
-      - name: Build the docker image and push it to the repository
+      - name: Build and push Docker image
         uses: './.github/actions/build-push-docker-image'
+        with:
+          cache-key: ${{ github.sha }}
+          build-number: 1
+          app-version: 1.0.0
         env:
-          REPOSITORY: ${{ vars.DEV_ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.DEV_ECR_REPOSITORY }}
