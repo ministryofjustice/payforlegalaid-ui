@@ -11,6 +11,9 @@ import crypto from 'crypto';
 
 const app = express();
 
+app.use(express.static('public'));
+
+
 /**
  * Generate a nonce for every request and attach it to res.locals
  * We use 16 bytes which is common in cryptographic contexts.

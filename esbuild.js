@@ -34,6 +34,23 @@ const copyAssets = async () => {
 };
 
 /**
+ * Copies selected MOJ assets (e.g. header crest images) into a folder
+ * that your SCSS can reference. Adjust the source and destination paths as needed.
+ */
+const copyMojAssets = async () => {
+  try {
+    await fs.copy(
+        path.resolve('./node_modules/@ministryofjustice/frontend/moj/assets/images'),
+        path.resolve('./public/assets/images')
+    );
+    console.log('MOJ assets copied successfully.');
+  } catch (error) {
+    console.error('Failed to copy MOJ assets:', error);
+    process.exit(1);
+  }
+};
+
+/**
  * Builds the SCSS and JavaScript files for the application using esbuild.
  * The build process includes copying assets, compiling SCSS with transformed paths,
  * and bundling JavaScript files for both server and client use.
@@ -70,6 +87,7 @@ const build = async () => {
 
     // Copy assets before building SCSS
     await copyAssets();
+    await copyMojAssets();
 
     // Bundle SCSS
     const scssBuildOptions = {
@@ -79,6 +97,11 @@ const build = async () => {
       plugins: [
         sassPlugin({
           resolveDir: path.resolve('src/scss'),
+          loadPaths: [
+            path.resolve('.'),
+            path.resolve('node_modules')
+          ],
+          publicPath: '/assets',
           /**
            * Transforms the source SCSS content by replacing asset paths.
            *
@@ -87,11 +110,11 @@ const build = async () => {
            */
           transform: (source) => {
             return source
-              .replace(/url\(["']?\/assets\/fonts\/([^"')]+)["']?\)/g,
-                'url("../../node_modules/govuk-frontend/dist/govuk/assets/fonts/$1")')
-              .replace(/url\(["']?\/assets\/images\/([^"')]+)["']?\)/g,
-                'url("../../node_modules/govuk-frontend/dist/govuk/assets/images/$1")');
-          },
+                .replace(/url\(["']?\/assets\/fonts\/([^"')]+)["']?\)/g,
+                    'url("../../node_modules/govuk-frontend/dist/govuk/assets/fonts/$1")')
+                .replace(/url\(["']?\/assets\/images\/([^"')]+)["']?\)/g,
+                    'url("../../public/assets/images/$1")');
+          }
         })
       ],
       loader: {
@@ -145,6 +168,10 @@ const build = async () => {
             {
               from: './node_modules/govuk-frontend/dist/govuk/assets/',
               to: './assets'
+            },
+            {
+              from: './node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.js',
+              to: `./js/moj-frontend.${buildNumber}.min.js`
             }
           ]
         })
