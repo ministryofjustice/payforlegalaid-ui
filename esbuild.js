@@ -40,12 +40,14 @@ const copyAssets = async () => {
 const copyMojAssets = async () => {
   try {
     await fs.copy(
-        path.resolve('./node_modules/@ministryofjustice/frontend/moj/assets/images'),
-        path.resolve('./public/assets/images')
+      path.resolve(
+        "./node_modules/@ministryofjustice/frontend/moj/assets/images",
+      ),
+      path.resolve("./public/assets/images"),
     );
-    console.log('MOJ assets copied successfully.');
+    console.log("MOJ assets copied successfully.");
   } catch (error) {
-    console.error('Failed to copy MOJ assets:', error);
+    console.error("Failed to copy MOJ assets:", error);
     process.exit(1);
   }
 };
@@ -101,11 +103,8 @@ const build = async () => {
       plugins: [
         sassPlugin({
           resolveDir: path.resolve("src/scss"),
-          loadPaths: [
-            path.resolve('.'),
-            path.resolve('node_modules')
-          ],
-          publicPath: '/assets',
+          loadPaths: [path.resolve("."), path.resolve("node_modules")],
+          publicPath: "/assets",
           /**
            * Transforms the source SCSS content by replacing asset paths.
            *
@@ -114,12 +113,16 @@ const build = async () => {
            */
           transform: (source) => {
             return source
-                .replace(/url\(["']?\/assets\/fonts\/([^"')]+)["']?\)/g,
-                    'url("../../node_modules/govuk-frontend/dist/govuk/assets/fonts/$1")')
-                .replace(/url\(["']?\/assets\/images\/([^"')]+)["']?\)/g,
-                    'url("../../public/assets/images/$1")');
-          }
-        })
+              .replace(
+                /url\(["']?\/assets\/fonts\/([^"')]+)["']?\)/g,
+                'url("../../node_modules/govuk-frontend/dist/govuk/assets/fonts/$1")',
+              )
+              .replace(
+                /url\(["']?\/assets\/images\/([^"')]+)["']?\)/g,
+                'url("../../public/assets/images/$1")',
+              );
+          },
+        }),
       ],
       loader: {
         ".scss": "css",
@@ -173,10 +176,10 @@ const build = async () => {
                 from: "./node_modules/govuk-frontend/dist/govuk/assets/",
                 to: "./assets",
               },
-                {
-                    from: "./node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.js",
-                    to: `./js/moj-frontend.${buildNumber}.min.js`
-                }
+              {
+                from: "./node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.js",
+                to: `./js/moj-frontend.${buildNumber}.min.js`,
+              },
             ],
           }),
         ],
