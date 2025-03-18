@@ -1,7 +1,7 @@
-name: "Format"
-description: "Run Prettier to check formatting"
+name: 'Format'
+description: 'Run Prettier to check formatting'
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Checkout code
       uses: actions/checkout@v4

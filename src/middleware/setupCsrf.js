@@ -1,4 +1,4 @@
-import { csrfSync } from "csrf-sync";
+import { csrfSync } from 'csrf-sync'
 
 /**
  * Sets up CSRF protection for an Express application.
@@ -8,7 +8,7 @@ import { csrfSync } from "csrf-sync";
  *
  * @param {import('express').Application} app - The Express application instance.
  */
-export const setupCsrf = (app) => {
+export const setupCsrf = app => {
   const { csrfSynchronisedProtection } = csrfSync({
     /**
      * Extracts the CSRF token from the request body.
@@ -16,14 +16,14 @@ export const setupCsrf = (app) => {
      * @param {import('express').Request} req - The incoming request object.
      * @returns {string|undefined} The CSRF token if present, otherwise undefined.
      */
-    getTokenFromRequest: (req) => req.body._csrf,
-  });
+    getTokenFromRequest: req => req.body._csrf,
+  })
 
   /**
    * Middleware to enforce CSRF protection on incoming requests.
    * This applies the `csrfSynchronisedProtection` middleware globally.
    */
-  app.use(csrfSynchronisedProtection);
+  app.use(csrfSynchronisedProtection)
 
   /**
    * Middleware to expose the CSRF token to views.
@@ -34,9 +34,9 @@ export const setupCsrf = (app) => {
    * @param {import('express').NextFunction} next - Callback to pass control to the next middleware.
    */
   app.use((req, res, next) => {
-    if (typeof req.csrfToken === "function") {
-      res.locals.csrfToken = req.csrfToken(); // Makes CSRF token available in views
+    if (typeof req.csrfToken === 'function') {
+      res.locals.csrfToken = req.csrfToken() // Makes CSRF token available in views
     }
-    next();
-  });
-};
+    next()
+  })
+}

@@ -1,7 +1,7 @@
-name: "Build"
-description: "Build the application"
+name: 'Build'
+description: 'Build the application'
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Checkout code
       uses: actions/checkout@v4

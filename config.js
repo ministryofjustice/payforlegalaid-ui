@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config()
 
 // Get environment variables
 const config = {
@@ -12,17 +12,17 @@ const config = {
   API_HOST: process.env.API_HOST,
   app: {
     port: process.env.PORT || 3000,
-    environment: process.env.NODE_ENV || "development",
+    environment: process.env.NODE_ENV || 'development',
   },
   csrf: {
-    cookieName: "_csrf",
-    secure: process.env.NODE_ENV === "production", // Only secure in production
+    cookieName: '_csrf',
+    secure: process.env.NODE_ENV === 'production', // Only secure in production
     httpOnly: true, // Restrict client-side access
   },
   paths: {
-    static: "public", // Path for serving static files
-    views: "src/views", // Path for Nunjucks views
+    static: 'public', // Path for serving static files
+    views: 'src/views', // Path for Nunjucks views
   },
-};
+}
 
-export default config;
+export default config

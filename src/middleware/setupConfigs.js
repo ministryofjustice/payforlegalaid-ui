@@ -1,4 +1,4 @@
-import config from "../../config.js";
+import config from '../../config.js'
 
 /**
  * Middleware setup function to attach configuration settings to response locals.
@@ -6,7 +6,7 @@ import config from "../../config.js";
  *
  * @param {object} app - The Express application instance.
  */
-export const setupConfig = (app) => {
+export const setupConfig = app => {
   /**
    * Middleware to add config to response locals.
    *
@@ -15,8 +15,8 @@ export const setupConfig = (app) => {
    * @param {Function} next - The next middleware function in the stack.
    */
   const configMiddleware = (req, res, next) => {
-    res.locals.config = config;
-    next();
-  };
-  app.use(configMiddleware);
-};
+    res.locals.config = config
+    next()
+  }
+  app.use(configMiddleware)
+}

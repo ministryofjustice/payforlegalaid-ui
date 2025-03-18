@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit from 'express-rate-limit'
 
 /**
  * Sets up rate limiting for the given Express app.
@@ -13,9 +13,9 @@ export const rateLimitSetUp = (app, config) => {
   const generalLimiter = rateLimit({
     windowMs: config.RATE_WINDOW_MS,
     max: config.RATE_LIMIT_MAX,
-    message: "Too many requests, please try again later.",
-  });
+    message: 'Too many requests, please try again later.',
+  })
 
   // Apply the general rate limiter to all requests
-  app.use(generalLimiter);
-};
+  app.use(generalLimiter)
+}
