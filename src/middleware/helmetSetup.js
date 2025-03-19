@@ -1,4 +1,4 @@
-import helmet from 'helmet'
+import helmet from "helmet"
 
 /**
  * Sets up Helmet middleware for the Express application to configure Content Security Policy (CSP).

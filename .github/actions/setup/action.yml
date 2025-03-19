@@ -1,11 +1,11 @@
-name: 'Setup'
-description: 'Setup the environment, install dependencies, and generate cache key'
+name: "Setup"
+description: "Setup the environment, install dependencies, and generate cache key"
 inputs:
   cookie-secret:
-    description: 'The cookie secret for the application'
+    description: "The cookie secret for the application"
     required: true
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -14,7 +14,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: 22.x
-        cache: 'npm'
+        cache: "npm"
 
     - name: Generate cache key
       id: cache-deps

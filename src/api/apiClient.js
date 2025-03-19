@@ -1,5 +1,5 @@
-import axios from 'axios'
-import config from '../../config.js'
+import axios from "axios"
+import config from "../../config.js"
 
 // Construct the base URL from configuration
 const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`
@@ -9,28 +9,28 @@ const apiClient = axios.create({
   baseURL,
   timeout: 5000, // Set a timeout value if needed
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 })
 
 apiClient.interceptors.request.use(
   config => {
-    console.log('API request made to:', config.url)
+    console.log("API request made to:", config.url)
     return config
   },
   error => {
-    console.error('API request error:', error)
+    console.error("API request error:", error)
     return Promise.reject(error)
   },
 )
 
 apiClient.interceptors.response.use(
   response => {
-    console.log('API response status:', response.status)
+    console.log("API response status:", response.status)
     return response
   },
   error => {
-    console.error('API response error:', error)
+    console.error("API response error:", error)
     return Promise.reject(error)
   },
 )

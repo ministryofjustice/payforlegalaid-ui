@@ -1,11 +1,11 @@
-import esbuild from 'esbuild'
-import { sassPlugin } from 'esbuild-sass-plugin'
-import { builtinModules } from 'module'
-import dotenv from 'dotenv'
-import { copy } from 'esbuild-plugin-copy'
-import fs from 'fs-extra'
-import path from 'path'
-import { getBuildNumber } from './src/utils/index.js'
+import esbuild from "esbuild"
+import { sassPlugin } from "esbuild-sass-plugin"
+import { builtinModules } from "module"
+import dotenv from "dotenv"
+import { copy } from "esbuild-plugin-copy"
+import fs from "fs-extra"
+import path from "path"
+import { getBuildNumber } from "./src/utils/index.js"
 
 // Load environment variables from .env file
 dotenv.config()
@@ -22,10 +22,10 @@ const buildNumber = getBuildNumber()
 const copyAssets = async () => {
   try {
     // Copy fonts and images to 'public/assets'
-    await fs.copy(path.resolve('./node_modules/govuk-frontend/dist/govuk/assets'), path.resolve('./public/assets'))
-    console.log('Assets copied successfully.')
+    await fs.copy(path.resolve("./node_modules/govuk-frontend/dist/govuk/assets"), path.resolve("./public/assets"))
+    console.log("Assets copied successfully.")
   } catch (error) {
-    console.error('Failed to copy assets:', error)
+    console.error("Failed to copy assets:", error)
     process.exit(1)
   }
 }
@@ -37,12 +37,12 @@ const copyAssets = async () => {
 const copyMojAssets = async () => {
   try {
     await fs.copy(
-      path.resolve('./node_modules/@ministryofjustice/frontend/moj/assets/images'),
-      path.resolve('./public/assets/images'),
+      path.resolve("./node_modules/@ministryofjustice/frontend/moj/assets/images"),
+      path.resolve("./public/assets/images"),
     )
-    console.log('MOJ assets copied successfully.')
+    console.log("MOJ assets copied successfully.")
   } catch (error) {
-    console.error('Failed to copy MOJ assets:', error)
+    console.error("Failed to copy MOJ assets:", error)
     process.exit(1)
   }
 }
@@ -58,29 +58,29 @@ const copyMojAssets = async () => {
 const build = async () => {
   try {
     // Ensure the dist folder exists
-    await fs.ensureDir(path.resolve('./dist'))
+    await fs.ensureDir(path.resolve("./dist"))
     // List of additional external dependencies
     const additionalExternals = [
-      'express',
-      'nunjucks',
-      'dotenv',
-      'crypto',
-      'cookie-signature',
-      'cookie-parser',
-      'body-parser',
-      'express-session',
-      'morgan',
-      'compression',
-      'sqlite3',
-      'sqlite',
-      'axios',
-      'middleware-axios',
-      'util',
-      'csrf-sync',
+      "express",
+      "nunjucks",
+      "dotenv",
+      "crypto",
+      "cookie-signature",
+      "cookie-parser",
+      "body-parser",
+      "express-session",
+      "morgan",
+      "compression",
+      "sqlite3",
+      "sqlite",
+      "axios",
+      "middleware-axios",
+      "util",
+      "csrf-sync",
     ]
 
     // Combine core Node.js modules with additional external dependencies
-    const externalModules = [...builtinModules, ...additionalExternals, '*.node']
+    const externalModules = [...builtinModules, ...additionalExternals, "*.node"]
 
     // Copy assets before building SCSS
     await copyAssets()
@@ -88,14 +88,14 @@ const build = async () => {
 
     // Bundle SCSS
     const scssBuildOptions = {
-      entryPoints: ['src/scss/main.scss'],
+      entryPoints: ["src/scss/main.scss"],
       bundle: true,
       outfile: `public/css/main.${buildNumber}.css`,
       plugins: [
         sassPlugin({
-          resolveDir: path.resolve('src/scss'),
-          loadPaths: [path.resolve('.'), path.resolve('node_modules')],
-          publicPath: '/assets',
+          resolveDir: path.resolve("src/scss"),
+          loadPaths: [path.resolve("."), path.resolve("node_modules")],
+          publicPath: "/assets",
           /**
            * Transforms the source SCSS content by replacing asset paths.
            *
@@ -113,12 +113,12 @@ const build = async () => {
         }),
       ],
       loader: {
-        '.scss': 'css',
-        '.woff': 'file',
-        '.woff2': 'file',
-        '.png': 'file',
-        '.jpg': 'file',
-        '.svg': 'file',
+        ".scss": "css",
+        ".woff": "file",
+        ".woff2": "file",
+        ".png": "file",
+        ".jpg": "file",
+        ".svg": "file",
       },
       minify: true,
       sourcemap: true,
@@ -126,25 +126,25 @@ const build = async () => {
 
     // Build the server-side JavaScript (Node/Express code)
     const serverBuildOptions = {
-      entryPoints: ['src/app.js'], // Your Express server entry point
+      entryPoints: ["src/app.js"], // Your Express server entry point
       bundle: true,
-      platform: 'node',
-      target: 'es2020',
-      format: 'esm',
+      platform: "node",
+      target: "es2020",
+      format: "esm",
       sourcemap: true,
       minify: false,
       external: externalModules,
-      outfile: 'dist/app.js', // Output server bundle to the dist folder
+      outfile: "dist/app.js", // Output server bundle to the dist folder
     }
 
     await esbuild.build(scssBuildOptions).catch(error => {
-      console.error('SCSS build failed:', error)
+      console.error("SCSS build failed:", error)
       process.exit(1)
     })
 
     // Build server JS code
     await esbuild.build(serverBuildOptions).catch(error => {
-      console.error('Server JS build failed:', error)
+      console.error("Server JS build failed:", error)
       process.exit(1)
     })
 
@@ -157,30 +157,30 @@ const build = async () => {
           copy({
             assets: [
               {
-                from: './node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.js',
+                from: "./node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.js",
                 to: `./js/govuk-frontend.${buildNumber}.min.js`,
               },
               {
-                from: './node_modules/govuk-frontend/dist/govuk/assets/',
-                to: './assets',
+                from: "./node_modules/govuk-frontend/dist/govuk/assets/",
+                to: "./assets",
               },
               {
-                from: './node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.js',
+                from: "./node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.js",
                 to: `./js/moj-frontend.${buildNumber}.min.js`,
               },
             ],
           }),
         ],
-        outfile: 'public/dummy.js', // dummy file to satisfy esbuild; can be ignored/deleted later.
+        outfile: "public/dummy.js", // dummy file to satisfy esbuild; can be ignored/deleted later.
       })
       .catch(error => {
-        console.error('Asset copy build failed:', error)
+        console.error("Asset copy build failed:", error)
         process.exit(1)
       })
 
-    console.log('Build completed successfully.')
+    console.log("Build completed successfully.")
   } catch (error) {
-    console.error('Build process failed:', error)
+    console.error("Build process failed:", error)
     process.exit(1)
   }
 }
@@ -189,7 +189,7 @@ export { build }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   build().catch(error => {
-    console.error('Build script failed:', error)
+    console.error("Build script failed:", error)
     process.exit(1)
   })
 }

@@ -1,5 +1,5 @@
-import { getReports } from '../services/reportService.js'
-import config from '../../config.js'
+import { getReports } from "../services/reportService.js"
+import config from "../../config.js"
 
 /**
  * Renders the homepage with a list of reports.
@@ -18,12 +18,12 @@ export async function showReportsPage(req, res) {
       // Construct the URL.
       reportDownloadUrl: `${baseURL}/csv/${report.id}`,
     }))
-    res.render('main/index', { reports })
+    res.render("main/index", { reports })
   } catch (error) {
-    console.error('Error fetching reports:', error)
-    res.render('main/error', {
-      status: 'An error occurred',
-      error: 'An error occurred while loading the reports.',
+    console.error("Error fetching reports:", error)
+    res.render("main/error", {
+      status: "An error occurred",
+      error: "An error occurred while loading the reports.",
     })
   }
 }

@@ -1,17 +1,17 @@
-import express from 'express'
-import morgan from 'morgan'
-import compression from 'compression'
-import { setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from './middleware'
-import session from 'express-session'
-import { nunjucksSetup, rateLimitSetUp } from './utils'
-import config from '../config'
-import indexRouter from './routes/index'
-import livereload from 'connect-livereload'
-import crypto from 'crypto'
+import express from "express"
+import morgan from "morgan"
+import compression from "compression"
+import { setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from "./middleware"
+import session from "express-session"
+import { nunjucksSetup, rateLimitSetUp } from "./utils"
+import config from "../config"
+import indexRouter from "./routes/index"
+import livereload from "connect-livereload"
+import crypto from "crypto"
 
 const app = express()
 
-app.use(express.static('public'))
+app.use(express.static("public"))
 
 /**
  * Generate a nonce for every request and attach it to res.locals
@@ -20,7 +20,7 @@ app.use(express.static('public'))
  * It’s long enough to make the nonce unpredictable while still being efficient to generate.
  */
 app.use((req, res, next) => {
-  res.locals.cspNonce = crypto.randomBytes(16).toString('base64')
+  res.locals.cspNonce = crypto.randomBytes(16).toString("base64")
   next()
 })
 
@@ -45,7 +45,7 @@ app.use(
      * @returns {boolean} - Returns true if compression should be applied, false otherwise.
      */
     filter: (req, res) => {
-      if (req.headers['x-no-compression']) {
+      if (req.headers["x-no-compression"]) {
         // Don't compress responses with this request header
         return false
       }
@@ -63,17 +63,17 @@ app.use(
 helmetSetup(app)
 
 // Reducing fingerprinting by removing the 'x-powered-by' header
-app.disable('x-powered-by')
+app.disable("x-powered-by")
 
 /**
  * Set up cookie security for sessions.
  * Configures session management with secure cookie settings and session IDs.
  */
-app.set('trust proxy', 1) // trust first proxy
+app.set("trust proxy", 1) // trust first proxy
 app.use(
   session({
     secret: config.COOKIE_SECRET, // Secret for session encryption
-    name: 'sessionId', // Custom session ID cookie name
+    name: "sessionId", // Custom session ID cookie name
     resave: false, // Prevents resaving unchanged sessions
     saveUninitialized: false, // Only save sessions that are modified
   }),
@@ -108,19 +108,19 @@ setupConfig(app)
 /**
  * Sets up request logging using Morgan for better debugging and analysis.
  */
-app.use(morgan('dev'))
+app.use(morgan("dev"))
 
 /**
  * Registers the main router for the application.
  * Serves routes defined in the 'indexRouter' module.
  */
-app.use('/', indexRouter)
+app.use("/", indexRouter)
 
 /**
  * Enables live-reload middleware in development mode to automatically reload
  * the server when changes are detected.
  */
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   app.use(livereload())
 }
 

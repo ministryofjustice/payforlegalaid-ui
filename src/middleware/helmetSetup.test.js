@@ -1,16 +1,16 @@
-import { helmetSetup } from './helmetSetup'
-import helmet from 'helmet'
+import { helmetSetup } from "./helmetSetup"
+import helmet from "helmet"
 
-jest.mock('helmet')
+jest.mock("helmet")
 
-describe('helmetSetup middleware', () => {
+describe("helmetSetup middleware", () => {
   let app
 
   beforeEach(() => {
     app = { use: jest.fn() }
   })
 
-  it('should apply helmet with content security policy (CSP) set', () => {
+  it("should apply helmet with content security policy (CSP) set", () => {
     helmetSetup(app)
 
     expect(app.use).toHaveBeenCalled()
@@ -18,6 +18,6 @@ describe('helmetSetup middleware', () => {
 
     // Grab the parameter we passed into helmet to make sure we set CSP
     const helmetSettings = helmet.mock.calls[0][0]
-    expect(helmetSettings).toHaveProperty('contentSecurityPolicy')
+    expect(helmetSettings).toHaveProperty("contentSecurityPolicy")
   })
 })

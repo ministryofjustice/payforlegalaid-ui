@@ -1,4 +1,4 @@
-import { csrfSync } from 'csrf-sync'
+import { csrfSync } from "csrf-sync"
 
 /**
  * Sets up CSRF protection for an Express application.
@@ -34,7 +34,7 @@ export const setupCsrf = app => {
    * @param {import('express').NextFunction} next - Callback to pass control to the next middleware.
    */
   app.use((req, res, next) => {
-    if (typeof req.csrfToken === 'function') {
+    if (typeof req.csrfToken === "function") {
       res.locals.csrfToken = req.csrfToken() // Makes CSRF token available in views
     }
     next()

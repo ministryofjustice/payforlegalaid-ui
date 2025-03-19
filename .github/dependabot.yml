@@ -7,31 +7,31 @@
 version: 2
 
 updates:
-  - package-ecosystem: 'bundler'
-    directory: '/'
+  - package-ecosystem: "bundler"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'terraform'
-    directory: '/terraform'
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/terraform"
     schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'pip'
-    directory: '/'
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'npm'
-    directory: '/'
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'gomod'
-    directory: '/'
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'docker'
-    directory: '/'
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/"
     schedule:
-      interval: 'weekly'
+      interval: "weekly"
