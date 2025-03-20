@@ -1,9 +1,4 @@
 import axios from "axios";
-import config from "../../config.js";
-
-// Construct the base URL from configuration
-const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`;
-
 // Create a pre-configured axios instance
 const apiClient = axios.create({
   baseURL,
