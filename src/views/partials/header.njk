@@ -1,0 +1,24 @@
+{%- from "moj/components/header/macro.njk" import mojHeader -%}
+
+{{ mojHeader({
+    organisationLabel: {
+        text: "Legal Aid Agency",
+        href: "#"
+    },
+    serviceLabel: {
+        text: config.SERVICE_NAME,
+        href: "#"
+    },
+    navigation: {
+        label: "Account navigation",
+        items: [{
+            text: "Account name",
+            href: "#",
+            active: true,
+            current: true
+        }, {
+            text: "Sign out",
+            href: "#"
+        }]
+    }
+}) }}

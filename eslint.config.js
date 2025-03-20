@@ -1,7 +1,8 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import jsdocPlugin from "eslint-plugin-jsdoc";
+import globals from "globals"
+import pluginJs from "@eslint/js"
+import jsdocPlugin from "eslint-plugin-jsdoc"
 
+/** @type {import('eslint').Linter.Config[]} */
 export default [
   {
     languageOptions: {
@@ -55,4 +56,4 @@ export default [
       "jsdoc/require-returns-type": "error",
     },
   },
-];
+]

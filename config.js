@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv"
+dotenv.config()
 
 // Get environment variables
 const config = {
@@ -23,6 +23,6 @@ const config = {
     static: "public", // Path for serving static files
     views: "src/views", // Path for Nunjucks views
   },
-};
+}
 
-export default config;
+export default config
