@@ -93,15 +93,15 @@ jobs:
           APP_VERSION: ${{ inputs.app-version }}
           GIT_REF: ${{ github.sha }}
 
-      - name: Deploy Helm chart
-        uses: './.github/actions/helm/deploy'
-        with:
-          chart-dir: ${{ inputs.chart-dir }}
-          release-name: ${{ inputs.release-name }}
-          namespace: ${{ inputs.namespace }}
-          repository: ${{ inputs.repository }}
-          image-tag: ${{ github.sha }}
-          build-number: ${{ inputs.build-number }}
-          app-version: ${{ inputs.app-version }}
-          git-ref: ${{ github.sha }}
-          environment: ${{ matrix.environment }}
+#      - name: Deploy Helm chart
+#        uses: './.github/actions/helm/deploy'
+#        with:
+#          chart-dir: ${{ inputs.chart-dir }}
+#          release-name: ${{ inputs.release-name }}
+#          namespace: ${{ inputs.namespace }}
+#          repository: ${{ inputs.repository }}
+#          image-tag: ${{ github.sha }}
+#          build-number: ${{ inputs.build-number }}
+#          app-version: ${{ inputs.app-version }}
+#          git-ref: ${{ github.sha }}
+#          environment: ${{ matrix.environment }}

@@ -48,7 +48,7 @@ jobs:
 
   deploy-to-enviroment:
     needs: publish-application-image
-    uses: './.github/workflows/chart_deployment_workflow.yml'
+    uses: './.github/workflows/deployment_workflow.yml'
     secrets: inherit
     with:
       app-version: ${{ needs.metadata-extractor.outputs.app-version }}
