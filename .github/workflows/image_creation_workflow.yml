@@ -50,4 +50,4 @@ jobs:
 
   build-helm-chart:
     needs: build-docker
-    uses: ./.github/workflows/build-helm-chart-workflow.yml
+    uses: ./.github/workflows/build-helm-workflow.yml
