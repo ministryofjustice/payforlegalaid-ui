@@ -31,24 +31,23 @@ on:
     outputs:
       registry:
         description: 'ECR Registry URL'
-        value: ${{ jobs.authenticate-and-prepare.outputs.registry }}
+        value: ${{ jobs.build-docker.outputs.registry }}
       image-tag:
         description: 'Docker image tag'
-        value: ${{ jobs.authenticate-and-prepare.outputs.image-tag }}
+        value: ${{ jobs.build-docker.outputs.image-tag }}
       helm-chart-version:
         description: 'Helm chart version'
-        value: ${{ jobs.deploy-helm-chart.outputs.helm-chart-version }}
+        value: ${{ jobs.build-helm-chart.outputs.helm-chart-version }}
 
 jobs:
-  authenticate-and-prepare:
-    uses: ./.github/workflows/authenticate-and-prepare.yml
+  build-docker:
+    uses: ./.github/workflows/build-docker-workflow.yml
     with:
       app-version: ${{ inputs.app-version }}
       environment: ${{ inputs.environment }}
       debug: ${{ inputs.debug }}
     secrets: inherit
 
-
-  deploy-helm-chart:
-    needs: authenticate-and-prepare
-    uses: ./.github/workflows/deploy-helm-chart-workflow.yml
+  build-helm-chart:
+    needs: build-docker
+    uses: ./.github/workflows/build-helm-chart-workflow.yml
