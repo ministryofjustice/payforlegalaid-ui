@@ -1,0 +1,19 @@
+name: "Add Build Summary"
+description: "Add a build summary to the GitHub Actions step summary."
+inputs:
+  chart-dir:
+    description: "The directory where the Helm chart is located"
+    required: true
+  image-tag:
+    description: "The image tag used in values.yaml"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Add build summary
+      shell: bash
+      run: |
+        echo "### Helm Chart Update Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Chart Directory:** ${{ inputs.chart-dir }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image Tag:** ${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Updated File:** values.yaml" >> $GITHUB_STEP_SUMMARY

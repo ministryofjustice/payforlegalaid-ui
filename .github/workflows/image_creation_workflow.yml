@@ -51,3 +51,7 @@ jobs:
   build-helm-chart:
     needs: build-docker
     uses: ./.github/workflows/build-helm-workflow.yml
+    with:
+      chart-dir: ${{ inputs.chart-dir }}
+      image-tag: ${{ inputs.image-tag }}
+      debug: ${{ inputs.debug }}

@@ -1,0 +1,23 @@
+name: "Update values.yaml"
+description: "Update the image.tag field in values.yaml with the provided image tag."
+inputs:
+  chart-dir:
+    description: "The directory where the Helm chart is located"
+    required: true
+  image-tag:
+    description: "The image tag to update in values.yaml"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Update values.yaml with new image tag
+      shell: bash
+      run: |
+        set -e  # Fail the script on any error
+        
+        VALUES_FILE="${{ inputs.chart-dir }}/values.yaml"
+        echo "Updating values.yaml with new image tag: ${{ inputs.image-tag }}"
+        yq eval ".image.tag = \"${{ inputs.image-tag }}\"" -i $VALUES_FILE
+        
+        echo "Updated values.yaml:"
+        cat $VALUES_FILE

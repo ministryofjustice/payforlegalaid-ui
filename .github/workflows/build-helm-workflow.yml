@@ -8,7 +8,14 @@ on:
         required: false
         type: boolean
         default: false
-
+      chart-dir:
+        description: "The directory where the Helm chart is located"
+        required: true
+        type: string
+      image-tag:
+        description: "The image tag to update in values.yaml"
+        required: true
+        type: string
 
 jobs:
   deploy-helm-chart:
@@ -22,11 +29,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Create or update Helm chart
-        uses: ./.github/actions/create-update-helm-chart
+      - name: Check if Helm chart exists
+        uses: './.github/actions/helm/check'
         with:
-          chart-dir: "./helm_deploy/payforlegalaid-ui"
-          IMAGE_TAG: ${{ github.sha }}
+          chart-dir: ${{ inputs.chart-dir }}
+
+      - name: Validate values.yaml
+        uses: './.github/actions/helm/validate'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
+
+      - name: Create or update Helm chart
+        uses: './.github/actions/helm/update'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
+          image-tag: ${{ github.sha }}
+
+      - name: Add build summary
+        uses: './.github/actions/helm/summary'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
+          image-tag: ${{ github.sha }}
 
       - name: Debug Helm Chart Output
         if: ${{ inputs.debug }}
