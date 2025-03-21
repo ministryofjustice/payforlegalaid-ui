@@ -1,0 +1,34 @@
+name: Deploy Helm Chart
+
+on:
+  workflow_call:
+    inputs:
+      debug:
+        description: 'Enable debugging'
+        required: false
+        type: boolean
+        default: false
+
+
+jobs:
+  deploy-helm-chart:
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create or update Helm chart
+        uses: ./.github/actions/create-update-helm-chart
+        with:
+          chart-dir: "./helm_deploy/payforlegalaid-ui"
+          IMAGE_TAG: ${{ github.sha }}
+
+      - name: Debug Helm Chart Output
+        if: ${{ inputs.debug }}
+        run: |
+          echo "Helm Chart Version: ${{ github.sha }}

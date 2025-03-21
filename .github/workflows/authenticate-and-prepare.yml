@@ -1,0 +1,77 @@
+name: Authenticate and Prepare Environment
+
+on:
+  workflow_call:
+    inputs:
+      build-number:
+        description: 'Build number for the Docker image'
+        required: false
+        type: number
+        default: 1
+      app-version:
+        description: 'UI application version'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment (DEV, UAT, PROD)'
+        required: true
+        type: string
+        default: 'DEV'
+      debug:
+        description: 'Enable debugging'
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      registry:
+        description: 'ECR Registry URL'
+        value: ${{ jobs.authenticate-and-prepare.outputs.registry }}
+      image-tag:
+        description: 'Docker image tag'
+        value: ${{ jobs.authenticate-and-prepare.outputs.image-tag }}
+
+jobs:
+  authenticate-and-prepare:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [DEV]
+        include:
+          - environment: DEV
+            env_name: development
+            repository: ${{ vars.DEV_ECR_REPOSITORY }}
+    environment: ${{ matrix.env_name }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('{0}_ECR_ROLE_TO_ASSUME', matrix.environment)] }}
+          aws-region: ${{ vars[format('{0}_ECR_REGION', matrix.environment)] }}
+
+      - name: Login to container repository
+        uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+
+      - name: Build and push Docker image
+        uses: './.github/actions/build-push-docker-image'
+        with:
+          cache-key: ${{ github.sha }}
+          build-number: ${{ inputs.build-number }}
+          app-version: ${{ inputs.app-version }}
+          registry: ${{ steps.login-ecr.outputs.registry }}
+          repository: ${{ vars[format('{0}_ECR_REPOSITORY', matrix.environment)] }}
+          cookie-secret: fpoobar
+          debug: true
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+      image-tag: ${{ github.sha }}
