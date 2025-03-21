@@ -1,4 +1,9 @@
-import axios from "axios";
+import axios from "axios"
+import config from "../../config.js"
+
+// Construct the base URL from configuration
+const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`
+
 // Create a pre-configured axios instance
 const apiClient = axios.create({
   baseURL,
@@ -6,28 +11,28 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-});
+})
 
 apiClient.interceptors.request.use(
-  (config) => {
-    console.log("API request made to:", config.url);
-    return config;
+  config => {
+    console.log("API request made to:", config.url)
+    return config
   },
-  (error) => {
-    console.error("API request error:", error);
-    return Promise.reject(error);
+  error => {
+    console.error("API request error:", error)
+    return Promise.reject(error)
   },
-);
+)
 
 apiClient.interceptors.response.use(
-  (response) => {
-    console.log("API response status:", response.status);
-    return response;
+  response => {
+    console.log("API response status:", response.status)
+    return response
   },
-  (error) => {
-    console.error("API response error:", error);
-    return Promise.reject(error);
+  error => {
+    console.error("API response error:", error)
+    return Promise.reject(error)
   },
-);
+)
 
-export default apiClient;
+export default apiClient

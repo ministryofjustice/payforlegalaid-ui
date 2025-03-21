@@ -1,4 +1,4 @@
-import helmet from "helmet";
+import helmet from "helmet"
 
 /**
  * Sets up Helmet middleware for the Express application to configure Content Security Policy (CSP).
@@ -7,7 +7,7 @@ import helmet from "helmet";
  *
  * @param {object} app - The Express application instance.
  */
-export const helmetSetup = (app) => {
+export const helmetSetup = app => {
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -29,5 +29,5 @@ export const helmetSetup = (app) => {
         },
       },
     }),
-  );
-};
+  )
+}
