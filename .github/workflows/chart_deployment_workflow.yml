@@ -69,15 +69,15 @@ jobs:
           echo "Release Name: ${{ inputs.release-name }}"
           echo "Namespace: ${{ inputs.namespace }}"
 
-      - name: Deploy Helm chart
+      - name: foo
         run: |
           set -e  # Fail the script on any error
-          
+  
           CHART_DIR="${{ inputs.chart-dir }}"
           RELEASE_NAME="${{ inputs.release-name }}"
           NAMESPACE="${{ inputs.namespace }}"
           REPOSITORY="${{ vars[format('{0}_ECR_REPOSITORY', inputs.environment)] }}"
-          
+  
           helm upgrade --install $RELEASE_NAME $CHART_DIR \
             --namespace $NAMESPACE \
             --set image.repository=${{ inputs.name }}/$REPOSITORY \
@@ -85,10 +85,23 @@ jobs:
             --set build.number=${{ env.BUILD_NUMBER }} \
             --set app.version=${{ env.APP_VERSION }} \
             --set git.ref=${{ env.GIT_REF }}
-          
+  
           echo "Helm chart deployed successfully to ${{ matrix.environment }}"
         env:
           IMAGE_TAG: ${{ github.sha }}
           BUILD_NUMBER: 1
           APP_VERSION: ${{ inputs.app-version }}
           GIT_REF: ${{ github.sha }}
+
+      - name: Deploy Helm chart
+        uses: './.github/actions/helm/deploy'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
+          release-name: ${{ inputs.release-name }}
+          namespace: ${{ inputs.namespace }}
+          repository: ${{ inputs.repository }}
+          image-tag: ${{ github.sha }}
+          build-number: ${{ inputs.build-number }}
+          app-version: ${{ inputs.app-version }}
+          git-ref: ${{ github.sha }}
+          environment: ${{ matrix.environment }}
