@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
-    "postinstall": "curl -o src/contracts/swagger.yml https://raw.githubusercontent.com/ministryofjustice/payforlegalaid-openapi/main/src/main/resources/swagger.yml",
+    "postinstall": "node src/utils/downloadSwagger.cjs",
     "start": "node dist/app.js",
     "clean": "rimraf public",
     "build": "npm run clean && node esbuild.js",

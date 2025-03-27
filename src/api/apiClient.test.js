@@ -119,4 +119,28 @@ describe("apiClient", () => {
     expect(result).toEqual(dummyResponse)
     consoleLogSpy.mockRestore()
   })
+
+  // Handle missing URL in request success interceptor.
+  it("should handle missing url in the request success interceptor", () => {
+    const consoleLogSpy = jest.spyOn(console, "log").mockImplementation(() => {})
+    const dummyConfig = {}; // no url provided
+
+    const result = capturedRequestSuccess(dummyConfig);
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("API request made to:", undefined);
+    expect(result).toEqual(dummyConfig);
+    consoleLogSpy.mockRestore();
+  });
+
+  // Handle missing status in response success interceptor.
+  it("should handle missing status in the response success interceptor", () => {
+    const consoleLogSpy = jest.spyOn(console, "log").mockImplementation(() => {})
+    const dummyResponse = {}; // no status provided
+
+    const result = capturedResponseSuccess(dummyResponse);
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("API response status:", undefined);
+    expect(result).toEqual(dummyResponse);
+    consoleLogSpy.mockRestore();
+  });
 })
