@@ -8,6 +8,7 @@ import config from "../config"
 import indexRouter from "./routes/index"
 import livereload from "connect-livereload"
 import crypto from "crypto"
+import { register } from "./utils/metrics.js"
 
 const app = express()
 
@@ -117,6 +118,19 @@ app.use(morgan("dev"))
 app.use("/", indexRouter)
 
 /**
+ * Expose Prometheus metrics at the '/metrics' endpoint.
+ * Prometheus will scrape this endpoint to gather performance and usage data.
+ */
+app.get("/metrics", async (req, res) => {
+  try {
+    res.set("Content-Type", register.contentType)
+    res.end(await register.metrics())
+  } catch (err) {
+    res.status(500).end(err.toString())
+  }
+})
+
+/**
  * Enables live-reload middleware in development mode to automatically reload
  * the server when changes are detected.
  */
@@ -131,3 +145,5 @@ if (process.env.NODE_ENV === "development") {
 app.listen(config.app.port, () => {
   console.log(`Server running on port ${config.app.port}`)
 })
+
+export default app
