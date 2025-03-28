@@ -1,6 +1,5 @@
 name: Feature Branch CI
 
-
 on:
   workflow_call:
     inputs:
