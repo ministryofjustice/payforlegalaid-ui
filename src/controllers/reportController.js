@@ -16,7 +16,7 @@ export async function showReportsPage(req, res) {
   try {
     console.log("Attempting to fetch reports...");
     const data = await getReports();
-    console.log("Successfully fetched reports data");
+    console.log("Successfully fetched reports data , {}", data);
 
     // Get the download URL for each report using the id
     const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`;
