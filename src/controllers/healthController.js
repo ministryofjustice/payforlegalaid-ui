@@ -12,7 +12,6 @@ export async function healthCheck(req, res) {
     const healthStatus = {
       status: "UP",
       timestamp: new Date().toISOString(),
-
     };
 
     const statusCode = healthStatus.status === "UP" ? 200 : 503;
