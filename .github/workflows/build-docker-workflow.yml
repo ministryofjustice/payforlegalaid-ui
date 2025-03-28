@@ -80,7 +80,7 @@ jobs:
         uses: ./.github/actions/docker/create-env
         with:
           cookie-secret: ${{ secrets.COOKIE_SECRET }}
-          api-host: "http://localhost:3000"
+          api-host: ${{ vars[format('{0}_BACKEND_API_HOST', inputs.environment)] }}
 
       - name: Build and push Docker image
         uses: ./.github/actions/docker/push-image
