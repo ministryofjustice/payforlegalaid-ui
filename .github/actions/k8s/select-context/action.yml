@@ -1,0 +1,15 @@
+name: "Use Kubernetes Context"
+description: "Switches to the configured Kubernetes context"
+
+inputs:
+  kube-cluster:
+    description: "The Kubernetes cluster URL"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Use Kubernetes context
+      shell: bash
+      run: |
+        kubectl config use-context ${{ inputs.kube-cluster }}

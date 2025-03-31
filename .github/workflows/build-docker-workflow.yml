@@ -1,0 +1,114 @@
+name: Authenticate and Prepare Environment
+
+on:
+  workflow_call:
+    inputs:
+      build-number:
+        description: 'Build number for the Docker image'
+        required: false
+        type: string
+        default: ${{ github.run_number }}
+      app-version:
+        description: 'UI application version'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment (DEV, UAT, PROD)'
+        required: true
+        type: string
+        default: 'DEV'
+      debug:
+        description: 'Enable debugging'
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      registry:
+        description: 'ECR Registry URL'
+        value: ${{ jobs.build_docker_image.outputs.registry }}
+      image-tag:
+        description: 'Docker image tag'
+        value: ${{ jobs.build_docker_image.outputs.image-tag }}
+
+env:
+  AWS_ROLE_SESSION_NAME: github-actions-${{ github.run_id }}
+  AWS_ROLE_DURATION_SECONDS: 3600
+
+jobs:
+  build_docker_image:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'PROD' && 'production' || inputs.environment == 'UAT' && 'UAT' || inputs.environment == 'DEV' && 'development' }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS Credentials
+        id: aws-auth
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('{0}_ECR_ROLE_TO_ASSUME', inputs.environment)] }}
+          aws-region: ${{ vars[format('{0}_ECR_REGION', inputs.environment)] }}
+          role-session-name: ${{ env.AWS_ROLE_SESSION_NAME }}
+          role-duration-seconds: ${{ env.AWS_ROLE_DURATION_SECONDS }}
+
+      - name: Login to container repository
+        uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+
+      - name: Restore dependencies from cache
+        uses: ./.github/actions/docker/restore-dependencies
+        with:
+          cache-key: ${{ github.sha }}
+
+      - name: Set up Docker
+        uses: ./.github/actions/docker/setup-docker
+
+      - name: Define image tag
+        id: define-tag
+        uses: ./.github/actions/docker/image-tag
+        with:
+          app-version: ${{ inputs.app-version }}
+          build-number: ${{ inputs.build-number }}
+
+      - name: Create .env file
+        uses: ./.github/actions/docker/create-env
+        with:
+          cookie-secret: ${{ secrets.COOKIE_SECRET }}
+          api-host: ${{ vars[format('{0}_BACKEND_API_HOST', inputs.environment)] }}
+
+      - name: Build and push Docker image
+        uses: ./.github/actions/docker/push-image
+        with:
+          registry: ${{ steps.login-ecr.outputs.registry }}
+          repository: ${{ vars[format('{0}_ECR_REPOSITORY', inputs.environment)] }}
+          build-number: ${{ inputs.build-number }}
+          app-version: ${{ inputs.app-version }}
+          image-tag: ${{ steps.define-tag.outputs.tag }}
+
+      - name: Verify Docker image
+        if: ${{ inputs.debug }}
+        uses: ./.github/actions/docker/verify-image
+        with:
+          registry: ${{ steps.login-ecr.outputs.registry }}
+          repository: ${{ vars[format('{0}_ECR_REPOSITORY', inputs.environment)] }}
+          image-tag: ${{ steps.define-tag.outputs.tag }}
+
+      - name: Add build summary
+        uses: ./.github/actions/docker/summary
+        with:
+          registry: ${{ steps.login-ecr.outputs.registry }}
+          repository: ${{ vars[format('{0}_ECR_REPOSITORY', inputs.environment)] }}
+          image-tag: ${{ steps.define-tag.outputs.tag }}
+          build-number: ${{ inputs.build-number }}
+          app-version: ${{ inputs.app-version }}
+          environment: ${{ inputs.environment }}
+
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+      image-tag: ${{ steps.define-tag.outputs.tag }}

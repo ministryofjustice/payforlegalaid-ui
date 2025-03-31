@@ -1,0 +1,19 @@
+name: "Configure Kubernetes Cluster"
+description: "Configures the Kubernetes cluster in kubectl"
+
+inputs:
+  kube-cluster:
+    description: "The Kubernetes cluster URL"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure Kubernetes cluster
+      shell: bash
+      run: |
+        kubectl config set-cluster ${{ inputs.kube-cluster }} \
+          --certificate-authority=./ca.crt \
+          --server=https://${{ inputs.kube-cluster }}
+        
+        echo "✅ Configured kubectl for ${{ inputs.kube-cluster }}"

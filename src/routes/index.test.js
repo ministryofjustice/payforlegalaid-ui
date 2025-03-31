@@ -1,51 +1,70 @@
 import request from "supertest"
 import express from "express"
-import { nunjucksSetup } from "../utils"
-import indexRouter from "../routes/index"
-import * as reportService from "../services/reportService.js"
+import router from "../routes/index"
+import * as reportController from "../controllers/reportController"
+import * as healthController from "../controllers/healthController"
 
-jest.mock("../services/reportService.js")
+jest.mock("../controllers/reportController")
+jest.mock("../controllers/healthController")
 
-describe("GET /", () => {
+describe("Router Tests", () => {
   let app
 
   beforeEach(() => {
-    jest.resetAllMocks()
     app = express()
+    app.use(router)
 
-    // Set up the route
-    app.use("/", indexRouter)
-
-    // Set up Nunjucks
-    nunjucksSetup(app)
+    jest.clearAllMocks()
   })
 
-  it("should render index page when getReports succeeds", async () => {
-    // Mock the service to return dummy data
-    reportService.getReports.mockResolvedValue({
-      reportList: [
-        {
-          id: "2345",
-          reportName: "Dummy Report",
-          description: "Dummy description",
-        },
-      ],
+  describe("GET /", () => {
+    it("should call showReportsPage controller", async () => {
+      reportController.showReportsPage.mockImplementation((req, res) => res.status(200).send("Reports Page"))
+
+      const response = await request(app).get("/")
+
+      expect(reportController.showReportsPage).toHaveBeenCalledTimes(1)
+      expect(response.status).toBe(200)
+      expect(response.text).toBe("Reports Page")
     })
 
-    const response = await request(app).get("/").expect("Content-Type", /html/).expect(200)
+    it("should handle errors from showReportsPage", async () => {
+      reportController.showReportsPage.mockImplementation((req, res) => {
+        throw new Error("Test error")
+      })
 
-    expect(response.text).toContain("Dummy Report")
-    expect(response.text).toContain("/csv/2345")
+      const response = await request(app).get("/")
+
+      expect(response.status).toBe(500)
+    })
   })
 
-  it("should render error page when getReports throws error", async () => {
-    // Mock the service to reject
-    reportService.getReports.mockRejectedValue(new Error("API connection issue"))
+  describe("GET /health", () => {
+    it("should return health status", async () => {
+      healthController.healthCheck.mockImplementation((req, res) => res.status(200).json({ status: "OK" }))
 
-    const response = await request(app).get("/").expect("Content-Type", /html/).expect(200)
+      const response = await request(app).get("/health")
 
-    // Confirm that the error template is rendered
-    expect(response.text).toContain("An error occurred")
-    expect(response.text).toContain("An error occurred while loading the reports.")
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({ status: "OK" })
+    })
+
+    it("should handle errors in health check", async () => {
+      healthController.healthCheck.mockImplementation((req, res) => {
+        throw new Error("Health check failed")
+      })
+
+      const response = await request(app).get("/health")
+
+      expect(response.status).toBe(500)
+    })
+  })
+
+  describe("404 Handling", () => {
+    it("should return 404 for unknown routes", async () => {
+      const response = await request(app).get("/nonexistent-route")
+
+      expect(response.status).toBe(404)
+    })
   })
 })

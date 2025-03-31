@@ -1,0 +1,21 @@
+name: "Validate values.yaml"
+description: "Validate the existence of values.yaml in the Helm chart directory."
+inputs:
+  chart-dir:
+    description: "The directory where the Helm chart is located"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Validate values.yaml
+      shell: bash
+      run: |
+        set -e  # Fail the script on any error
+
+        VALUES_FILE="${{ inputs.chart-dir }}/values.yaml"
+        if [ ! -f "$VALUES_FILE" ]; then
+          echo "Error: values.yaml not found in ${{ inputs.chart-dir }}."
+          exit 1
+        else
+          echo "Found values.yaml in ${{ inputs.chart-dir }}."
+        fi

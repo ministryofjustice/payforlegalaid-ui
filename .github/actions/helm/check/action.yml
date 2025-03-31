@@ -1,0 +1,18 @@
+name: "Check if Helm Chart Exists"
+description: "Check if a Helm chart exists in the specified directory, and create it if it doesn't."
+inputs:
+  chart-dir:
+    description: "The directory where the Helm chart is located"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Check if Helm chart exists
+      shell: bash
+      run: |
+        if [ ! -d "${{ inputs.chart-dir }}" ]; then
+          echo "Creating new Helm chart in ${{ inputs.chart-dir }}..."
+          helm create ${{ inputs.chart-dir }}
+        else
+          echo "Helm chart already exists in ${{ inputs.chart-dir }}."
+        fi
