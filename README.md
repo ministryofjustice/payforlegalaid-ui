@@ -49,6 +49,50 @@ npm run dev
 
 Then, load http://localhost:3000/ in your browser to access the app.
 
+### Monitoring with Prometheus
+
+Our application exposes Prometheus metrics at the /metrics endpoint, allowing you to monitor performance data (such as memory usage, CPU, HTTP request counts, and custom metrics). This setup is useful for troubleshooting, performance tuning, and ensuring the health of the UI.
+
+Metrics Collection:
+We use the prom-client library to collect default Node.js metrics (e.g., CPU usage, memory usage, event loop lag) as well as custom metrics (such as the number of report page requests).
+
+Exposing Metrics:
+The /metrics endpoint in our Express app returns these metrics in a format that Prometheus can scrape.
+
+If you want to view the metrics locally:
+
+#### 1. Ensure Docker is Running:
+Make sure Docker Desktop is running on your machine.
+
+#### 2.	Use a Custom Prometheus Configuration:
+Our repository includes a prometheus.yml file in the root. A sample configuration looks like this:
+
+```
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'payforlegalaid-ui'
+    static_configs:
+      - targets: ['host.docker.internal:3000']
+```
+This configuration tells Prometheus (running inside Docker) to scrape metrics from our app running on port 3000 via host.docker.internal, which resolves to your host machine’s IP.
+
+#### 3.	Run Prometheus via Docker:
+From the root of the repository, run:
+```
+docker run -p 9090:9090 -v "$(pwd)/prometheus.yml":/etc/prometheus/prometheus.yml prom/prometheus
+```
+This exposes Prometheus on port 9090 and mounts our local prometheus.yml into the container.
+
+#### 4.	Access the Prometheus UI:
+Open your browser and navigate to http://localhost:9090.
+
+Use the Targets page (under Status → Targets) to confirm that the payforlegalaid-ui target is being scraped successfully.
+
+You can also use the Graph tab to query metrics and view performance data.
+
+
 ## Tests
 
 Unit tests are using Jest.

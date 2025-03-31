@@ -1,4 +1,4 @@
 scrape_configs:
-  - job_name: 'my-node-app'
+  - job_name: "payforlegalaid-ui"
     static_configs:
-      - targets: ['localhost:3000']
+      - targets: ["host.docker.internal:3000"]
