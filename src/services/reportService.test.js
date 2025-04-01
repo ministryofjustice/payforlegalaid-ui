@@ -1,40 +1,26 @@
 import { getReports } from "./reportService.js"
+import apiClient from "../api/apiClient.js"
+import { getSampleForPath } from "../utils/contractDataHelper.js"
 
-// Mock the reportService module
-jest.mock("./reportService.js", () => ({
-  getReports: jest.fn(() =>
-    Promise.resolve({
-      reportList: [
-        {
-          id: 1,
-          reportName: "Report 1",
-          description: "This is the first report",
-        },
-        {
-          id: 2,
-          reportName: "Report 2",
-          description: "This is the second report",
-        },
-      ],
-    }),
-  ),
-}))
+jest.mock("../api/apiClient.js")
 
-describe("reportService", () => {
-  it('should return an object with a "reportList" array', async () => {
+describe("reportService.getReports", () => {
+  it("should return reportList from API response", async () => {
+    // Generate sample data from the Swagger contract.
+    const sampleData = getSampleForPath("/reports", "get", "200")
+
+    // Simulate a successful API call using the contract-driven sample data.
+    apiClient.get.mockResolvedValue({ data: sampleData })
+
     const result = await getReports()
+    expect(result).toEqual(sampleData)
+  })
 
-    // Ensure 'reportList' exists
-    expect(result).toHaveProperty("reportList")
-    // Ensure 'reportList' is an array
-    expect(Array.isArray(result.reportList)).toBe(true)
+  it("should throw an error when the API call fails", async () => {
+    const error = new Error("API connection issue")
+    // Simulate an API call failure.
+    apiClient.get.mockRejectedValue(error)
 
-    // Check that it has at least one item
-    expect(result.reportList.length).toBeGreaterThan(0)
-
-    const firstReport = result.reportList[0]
-    expect(firstReport).toHaveProperty("id")
-    expect(firstReport).toHaveProperty("reportName")
-    expect(firstReport).toHaveProperty("description")
+    await expect(getReports()).rejects.toThrow("API connection issue")
   })
 })
