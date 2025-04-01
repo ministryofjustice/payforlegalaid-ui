@@ -62,9 +62,11 @@ The /metrics endpoint in our Express app returns these metrics in a format that 
 If you want to view the metrics locally:
 
 #### 1. Ensure Docker is Running:
+
 Make sure Docker Desktop is running on your machine.
 
-#### 2.	Use a Custom Prometheus Configuration:
+#### 2. Use a Custom Prometheus Configuration:
+
 Our repository includes a prometheus.yml file in the root. A sample configuration looks like this:
 
 ```
@@ -76,26 +78,30 @@ scrape_configs:
     static_configs:
       - targets: ['host.docker.internal:3000']
 ```
+
 This configuration tells Prometheus (running inside Docker) to scrape metrics from our app running on port 3000 via host.docker.internal, which resolves to your host machine’s IP.
 
-#### 3.	Run Prometheus via Docker:
+#### 3. Run Prometheus via Docker:
+
 From the root of the repository, run:
+
 ```
 docker run -p 9090:9090 -v "$(pwd)/prometheus.yml":/etc/prometheus/prometheus.yml prom/prometheus
 ```
+
 This exposes Prometheus on port 9090 and mounts our local prometheus.yml into the container.
 
-#### 4.	Access the Prometheus UI:
+#### 4. Access the Prometheus UI:
+
 Open your browser and navigate to http://localhost:9090.
 
 Use the Targets page (under Status → Targets) to confirm that the payforlegalaid-ui target is being scraped successfully.
 
 You can also use the Graph tab to query metrics and view performance data.
 
-#### 5.	Prometheus Metrics Endpoint:
+#### 5. Prometheus Metrics Endpoint:
 
 When you navigate to http://localhost:3000/metrics, you’ll see output in plain text following the Prometheus exposition format. This output includes both default metrics (collected via the prom-client library) and any custom metrics we’ve defined.
-
 
 ## Tests
 
