@@ -92,6 +92,10 @@ Use the Targets page (under Status → Targets) to confirm that the payforlegala
 
 You can also use the Graph tab to query metrics and view performance data.
 
+#### 5.	Prometheus Metrics Endpoint:
+
+When you navigate to http://localhost:3000/metrics, you’ll see output in plain text following the Prometheus exposition format. This output includes both default metrics (collected via the prom-client library) and any custom metrics we’ve defined.
+
 
 ## Tests
 
