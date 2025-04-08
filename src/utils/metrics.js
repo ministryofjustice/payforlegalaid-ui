@@ -28,3 +28,10 @@ export const apiErrors = new client.Counter({
   name: "api_errors_total",
   help: "Total number of errors encountered when calling external APIs",
 })
+
+// 4. Counter metric for HTTP requests with method, path, and status labels
+export const httpRequestsTotal = new client.Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "path", "status"],
+})

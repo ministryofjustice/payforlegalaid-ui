@@ -8,11 +8,30 @@ import config from "../config"
 import indexRouter from "./routes/index"
 import livereload from "connect-livereload"
 import crypto from "crypto"
-import { register } from "./utils/metrics.js"
+import { httpRequestsTotal, register } from "./utils/metrics.js"
 
 const app = express()
 
 app.use(express.static("public"))
+
+/**
+ * Middleware to capture HTTP requests for Prometheus metrics.
+ *
+ * This middleware listens for the "finish" event on the response object and then increments
+ * the `httpRequestsTotal` counter. The counter is updated with labels for the HTTP method, the
+ * request path, and the response status code. This helps to differentiate between successful
+ * responses (2xx), client errors (4xx), and server errors (5xx).
+ */
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    httpRequestsTotal.inc({
+      method: req.method,
+      path: req.path,
+      status: String(res.statusCode),
+    })
+  })
+  next()
+})
 
 /**
  * Generate a nonce for every request and attach it to res.locals
