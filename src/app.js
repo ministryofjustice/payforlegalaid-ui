@@ -28,6 +28,7 @@ app.use((req, res, next) => {
       method: req.method,
       path: req.path,
       status: String(res.statusCode),
+      report_type: reportType,
     })
   })
   next()
@@ -145,7 +146,12 @@ app.get("/metrics", async (req, res) => {
     res.set("Content-Type", register.contentType)
     res.end(await register.metrics())
   } catch (err) {
-    res.status(500).end(err.toString())
+    console.error('Metrics endpoint error:', err);
+    if (process.env.NODE_ENV === "production") {
+      res.status(500).end('Internal Server Error');
+    } else {
+      res.status(500).end(err.toString());
+    }
   }
 })
 

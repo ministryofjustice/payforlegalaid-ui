@@ -33,5 +33,5 @@ export const apiErrors = new client.Counter({
 export const httpRequestsTotal = new client.Counter({
   name: "http_requests_total",
   help: "Total number of HTTP requests",
-  labelNames: ["method", "path", "status"],
+  labelNames: ["method", "path", "status", "report_type"],
 })
