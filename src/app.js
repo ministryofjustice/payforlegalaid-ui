@@ -146,11 +146,11 @@ app.get("/metrics", async (req, res) => {
     res.set("Content-Type", register.contentType)
     res.end(await register.metrics())
   } catch (err) {
-    console.error('Metrics endpoint error:', err);
+    console.error("Metrics endpoint error:", err)
     if (process.env.NODE_ENV === "production") {
-      res.status(500).end('Internal Server Error');
+      res.status(500).end("Internal Server Error")
     } else {
-      res.status(500).end(err.toString());
+      res.status(500).end(err.toString())
     }
   }
 })
