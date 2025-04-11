@@ -24,6 +24,7 @@ app.use(express.static("public"))
  */
 app.use((req, res, next) => {
   res.on("finish", () => {
+    const reportType = req.query.report_type || "unknown"
     httpRequestsTotal.inc({
       method: req.method,
       path: req.path,
