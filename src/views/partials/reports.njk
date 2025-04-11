@@ -11,7 +11,9 @@
                         {{ report.description }}
                     </p>
                     <p class="govuk-body">
-                        <a href="{{ report.reportDownloadUrl }}" class="govuk-link">Download Report</a> (.xlsx file)
+                        <a href="{{ report.reportDownloadUrl }}" class="govuk-link">
+                            Download Report <span class="govuk-visually-hidden">for {{ report.reportName }}</span>
+                        </a> (.xlsx file)
                     </p>
 
                 </div>
