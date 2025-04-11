@@ -12,6 +12,9 @@
 
 {% block bodyStart %}
   {# cookie policy #}
+  <script nonce="{{ cspNonce }}">
+    document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
+  </script>
 {% endblock %}
 
 {% block header %}
