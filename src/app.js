@@ -1,14 +1,12 @@
 import express from "express"
 import morgan from "morgan"
 import compression from "compression"
-import { setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from "./middleware"
+import { setupCsrf, setUpWebSecurity, setupConfig, setupMiddlewares } from "./middleware"
 import session from "express-session"
 import { nunjucksSetup, rateLimitSetUp } from "./utils"
 import config from "../config"
 import indexRouter from "./routes/index"
 import livereload from "connect-livereload"
-import crypto from "crypto"
-import { httpRequestsTotal, register } from "./utils/metrics.js"
 
 const app = express()
 
@@ -50,6 +48,9 @@ app.use((req, res, next) => {
  */
 setupMiddlewares(app)
 
+// Set up web security (nonce generation + CSP configuration)
+app.use(setUpWebSecurity())
+
 /**
  * Response compression setup. Compresses responses unless the 'x-no-compression' header is present.
  * Improves the performance of your app by reducing the size of responses.
@@ -74,13 +75,6 @@ app.use(
     },
   }),
 )
-
-/**
- * Sets up security headers using Helmet to protect the app from well-known web vulnerabilities.
- *
- * @param {import('express').Application} app - The Express application instance.
- */
-helmetSetup(app)
 
 // Reducing fingerprinting by removing the 'x-powered-by' header
 app.disable("x-powered-by")
