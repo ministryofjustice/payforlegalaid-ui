@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Writes the Kubernetes certificate to a file
-        uses: './.github/actions/k8s/ca'
+        uses: './.github/actions/k8s/ca-cert'
         with:
           kube-cert: ${{ secrets[format('KUBE_CERT_{0}', inputs.environment)] }}
 
@@ -70,7 +70,7 @@ jobs:
           kube-token: ${{ secrets[format('KUBE_TOKEN_{0}', inputs.environment)] }}
 
       - name: Configures the Kubernetes context
-        uses: './.github/actions/k8s/contex'
+        uses: './.github/actions/k8s/context'
         with:
           kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', inputs.environment)] }}
           kube-namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}

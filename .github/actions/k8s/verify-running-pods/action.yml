@@ -7,14 +7,6 @@ inputs:
   namespace:
     description: 'Kubernetes namespace'
     required: true
-  timeout-seconds:
-    description: 'Timeout for pods to become ready (default: 60)'
-    required: false
-    default: '60'
-  retry-interval:
-    description: 'Delay between retries in seconds (default: 10)'
-    required: false
-    default: '10'
 
 outputs:
   pods_running:

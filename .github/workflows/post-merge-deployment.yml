@@ -17,16 +17,13 @@ jobs:
     with:
       cookie-secret: 'DummyCookieForTestOnly'
 
-  metadata-extractor:
-    uses: './.github/workflows/extract-metadata-workflow.yml'
-
   publish-application-image:
-    needs: [feature-branch-build, metadata-extractor]
+    needs: feature-branch-build
     uses: './.github/workflows/build-image-workflow.yml'
     secrets: inherit
     with:
       build-number: ${{github.run_number}}
-      app-version: ${{ needs.metadata-extractor.outputs.app-version }}
+      app-version: "0.1.0"
       chart-dir: './helm_deploy/payforlegalaid-ui'
       environment: DEV
       debug: false
@@ -36,7 +33,7 @@ jobs:
     uses: './.github/workflows/environment-deployment-workflow.yml'
     secrets: inherit
     with:
-      app-version: ${{ needs.metadata-extractor.outputs.app-version }}
+      app-version: "0.1.0"
       name: ${{ needs.publish-application-image.outputs.registry }}
       build-number: ${{github.run_number}}
       chart-dir: "./helm_deploy/payforlegalaid-ui"

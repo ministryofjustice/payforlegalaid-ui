@@ -72,7 +72,7 @@ ingress:
       SecRuleRemoveById 920120
       SecRuleEngine On
       SecRequestBodyLimit 29360128
-      SecDefaultAction "phase:2,pass,log,tag:github_team=crime-billing-online"
+      SecDefaultAction "phase:2,pass,log,tag:github_team=gpfd-team"
       SecAction "id:900110,phase:1,nolog,pass,t:none,setvar:tx.inbound_anomaly_score_threshold=6"
       SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
       SecRuleRemoveById 200002

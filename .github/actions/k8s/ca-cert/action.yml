@@ -5,11 +5,6 @@ inputs:
   kube-cert:
     description: "The Kubernetes cluster certificate"
     required: true
-  output-dir:
-    description: "Secure output parent directory"
-    required: false
-    type: string
-    default: "${{ runner.temp }}"
 
 runs:
   using: "composite"
