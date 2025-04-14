@@ -13,7 +13,6 @@ concurrency:
 jobs:
 
   feature-branch-build:
-    if: github.event.pull_request.merged == true
     uses: './.github/workflows/feature-branch-ci.yml'
     with:
       cookie-secret: 'DummyCookieForTestOnly'
