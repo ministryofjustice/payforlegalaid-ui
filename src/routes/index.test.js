@@ -1,11 +1,12 @@
-import request from "supertest"
-import express from "express"
-import router from "./index.js"
-
 // Mock the controller
+jest.resetModules()
 jest.mock("../controllers/reportController.js", () => ({
   showReportsPage: jest.fn((req, res) => res.send("Mocked Report Page")),
 }))
+
+import request from "supertest"
+import express from "express"
+import router from "./index.js"
 
 import { showReportsPage } from "../controllers/reportController.js"
 
@@ -13,8 +14,13 @@ describe("GET /", () => {
   let app
 
   beforeEach(() => {
-    jest.resetAllMocks()
     app = express()
+    app.use((req, res, next) => {
+      res.render = view => {
+        res.send(`Rendered ${view}`)
+      }
+      next()
+    })
     app.use("/", router)
   })
 
