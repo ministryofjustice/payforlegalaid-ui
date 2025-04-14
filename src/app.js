@@ -7,7 +7,7 @@ import { nunjucksSetup, rateLimitSetUp } from "./utils"
 import config from "../config"
 import indexRouter from "./routes/index"
 import livereload from "connect-livereload"
-import { httpRequestsTotal } from "./utils/metrics.js";
+import { httpRequestsTotal } from "./utils/metrics.js"
 
 const app = express()
 
