@@ -11,5 +11,6 @@
   },
   "rules": {
     // add any project-specific rules here
+    "jsdoc/require-description": "off"
   }
 }
