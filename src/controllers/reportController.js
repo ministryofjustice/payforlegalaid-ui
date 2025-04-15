@@ -19,7 +19,6 @@ export async function showReportsPage(req, res) {
     const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`
     console.log(`Constructing base URL: ${baseURL}`)
 
-    // const reports = data.reportList.map(report => {
     const reports = data.reportList
       ? data.reportList.map(report => {
           const downloadUrl = `${baseURL}/csv/${report.id}`
