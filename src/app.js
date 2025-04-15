@@ -25,8 +25,6 @@ app.use(express.static("public"))
 app.use((req, res, next) => {
   // Determine the report type from the request (defaults to "unknown")
   const reportType = req.query.report_type || "unknown"
-
-  // Define the function that increments the metric
   const logMetrics = () => {
     httpRequestsTotal.inc({
       method: req.method,
@@ -38,20 +36,16 @@ app.use((req, res, next) => {
   // Handler for normal completion of the response.
   const finishHandler = () => {
     logMetrics()
-    // Remove the "close" listener so that it won't be called later.
     res.off("close", closeHandler)
   }
-
   // Handler for early connection closure (aborted request).
   const closeHandler = () => {
     // Remove the "finish" listener if the response did not complete normally.
     res.off("finish", finishHandler)
   }
-
   // Use `once` to ensure each handler only fires one time per request.
   res.once("finish", finishHandler)
   res.once("close", closeHandler)
-
   next()
 })
 
