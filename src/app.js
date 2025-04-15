@@ -22,9 +22,19 @@ app.use(express.static("public"))
  * request path, and the response status code. This helps to differentiate between successful
  * responses (2xx), client errors (4xx), and server errors (5xx).
  */
+
 app.use((req, res, next) => {
   // Determine the report type from the request (defaults to "unknown")
   const reportType = req.query.report_type || "unknown"
+
+  /**
+   * Increments the httpRequestsTotal counter with metrics.
+   *
+   * This function uses the HTTP method, request path, response status code, and report type to
+   * update the Prometheus counter for HTTP requests.
+   *
+   * @returns {void}
+   */
   const logMetrics = () => {
     httpRequestsTotal.inc({
       method: req.method,
@@ -33,19 +43,38 @@ app.use((req, res, next) => {
       report_type: reportType,
     })
   }
-  // Handler for normal completion of the response.
+
+  /**
+   * Handler for the "finish" event on the response.
+   *
+   * When the response finishes normally, this handler calls logMetrics to record the metrics
+   * and then removes the "close" listener to prevent duplicate cleanup.
+   *
+   * @returns {void}
+   */
   const finishHandler = () => {
     logMetrics()
+    // Remove the "close" listener so that it won't be called later.
     res.off("close", closeHandler)
   }
-  // Handler for early connection closure (aborted request).
+
+  /**
+   * Handler for the "close" event on the response.
+   *
+   * If the connection is aborted before the response finishes, this handler removes the "finish"
+   * listener to prevent it from firing later.
+   *
+   * @returns {void}
+   */
   const closeHandler = () => {
     // Remove the "finish" listener if the response did not complete normally.
     res.off("finish", finishHandler)
   }
+
   // Use `once` to ensure each handler only fires one time per request.
   res.once("finish", finishHandler)
   res.once("close", closeHandler)
+
   next()
 })
 
