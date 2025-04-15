@@ -17,28 +17,48 @@ app.use(express.static("public"))
 /**
  * Middleware to capture HTTP requests for Prometheus metrics.
  *
- * This middleware listens for the "finish" event on the response object and then increments
+ * This middleware listens for both "finish" (normal completion) and "close" (aborted connection) events on the response object and then increments
  * the `httpRequestsTotal` counter. The counter is updated with labels for the HTTP method, the
  * request path, and the response status code. This helps to differentiate between successful
  * responses (2xx), client errors (4xx), and server errors (5xx).
  */
 app.use((req, res, next) => {
-  res.on("finish", () => {
-    const reportType = req.query.report_type || "unknown"
+  // Determine the report type from the request (defaults to "unknown")
+  const reportType = req.query.report_type || "unknown"
+
+  // Define the function that increments the metric
+  const logMetrics = () => {
     httpRequestsTotal.inc({
       method: req.method,
       path: req.path,
       status: String(res.statusCode),
       report_type: reportType,
     })
-  })
+  }
+  // Handler for normal completion of the response.
+  const finishHandler = () => {
+    logMetrics()
+    // Remove the "close" listener so that it won't be called later.
+    res.off("close", closeHandler)
+  }
+
+  // Handler for early connection closure (aborted request).
+  const closeHandler = () => {
+    // Remove the "finish" listener if the response did not complete normally.
+    res.off("finish", finishHandler)
+  }
+
+  // Use `once` to ensure each handler only fires one time per request.
+  res.once("finish", finishHandler)
+  res.once("close", closeHandler)
+
   next()
 })
 
 /**
  * Generate a nonce for every request and attach it to res.locals
  * We use 16 bytes which is common in cryptographic contexts.
- * It provides 128 bits of entropy which is considered secure enough for generating nonces.
+ * It provides 128 bits of entropy which is considered secure enough for generating nonce's.
  * It’s long enough to make the nonce unpredictable while still being efficient to generate.
  */
 app.use((req, res, next) => {
