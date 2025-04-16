@@ -62,7 +62,9 @@ runs:
       run: |
         COOKIE_SECRET_ESCAPED=$(printf '%s\n' "${{ inputs.cookie-secret }}" | sed -e 's/[\/&]/\\&/g')
         API_HOST_ESCAPED=$(printf '%s\n' "${{ inputs.api-host }}" | sed -e 's/[\/&]/\\&/g')
-
+        SERVICE_NAME='Get Legal Aid Data'
+        SERVICE_PHASE='Alpha'
+  
         cat <<EOF > "${{ inputs.env-file-path }}"
         COOKIE_SECRET='$COOKIE_SECRET_ESCAPED'
         
