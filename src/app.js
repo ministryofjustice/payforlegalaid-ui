@@ -35,11 +35,11 @@ app.use((req, res, next) => {
    *
    * @returns {void}
    */
-  const logMetrics = () => {
+  const logMetrics = statusOverride => {
     httpRequestsTotal.inc({
       method: req.method,
       path: req.path,
-      status: String(res.statusCode),
+      status: String(statusOverride ?? res.statusCode),
       report_type: reportType,
     })
   }
@@ -67,6 +67,7 @@ app.use((req, res, next) => {
    * @returns {void}
    */
   const closeHandler = () => {
+    logMetrics(499)
     // Remove the "finish" listener if the response did not complete normally.
     res.off("finish", finishHandler)
   }
