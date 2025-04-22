@@ -28,11 +28,12 @@ app.use((req, res, next) => {
   const reportType = req.query.report_type || "unknown"
 
   /**
-   * Increments the httpRequestsTotal counter with metrics.
+   * Increment the {@link httpRequestsTotal} counter for this request.
    *
-   * This function uses the HTTP method, request path, response status code, and report type to
-   * update the Prometheus counter for HTTP requests.
-   *
+   * @param {number} [statusOverride] - Optional HTTP‑status code to record
+   *   instead of `res.statusCode`.  Pass `499` when the client aborts the
+   *   connection; otherwise leave it `undefined` so the real response status
+   *   is used.
    * @returns {void}
    */
   const logMetrics = statusOverride => {
