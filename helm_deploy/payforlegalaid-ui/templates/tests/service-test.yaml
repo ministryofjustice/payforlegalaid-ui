@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "payforlegalaid-ui.fullname" . }}-service-test"
+  labels:
+    {{- include "payforlegalaid-ui.labels" . | nindent 4 }}
+    app.kubernetes.io/component: smoke-test
+    app.kubernetes.io/test-type: connectivity
+  annotations:
+    helm.sh/hook: test-success
+    helm.sh/hook-delete-policy: hook-succeeded,hook-failed
+    helm.sh/hook-weight: "-5"
+    test.timeout: "60s"
+    k8s.vpn.com/test-description: "Validates service connectivity and health endpoints"
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values: [ "{{ include "payforlegalaid-ui.name" . }}"]
+            topologyKey: "kubernetes.io/hostname"
+  containers:
+    - name: service-test
+      image: curlimages/curl:latest
+      command: ['sh', '-c']
+      securityContext:
+        readOnlyRootFilesystem: true
+        privileged: false
+        runAsUser: 1000
+      args:
+        - |
+          echo "Testing service connectivity to http://{{ .Values.service.name | default (include "payforlegalaid-ui.fullname" .) }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/health";
+          MAX_ATTEMPTS=10;
+          ATTEMPT=0;
+          until curl -sf "http://{{ .Values.service.name | default (include "payforlegalaid-ui.fullname" .) }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/health"; do
+           ATTEMPT=$((ATTEMPT+1));
+           if [ $ATTEMPT -ge $MAX_ATTEMPTS ]; then
+             echo "Failed to connect to service after $MAX_ATTEMPTS attempts";
+             exit 1;
+           fi;
+           echo "Waiting for service to be ready... Attempt $ATTEMPT/$MAX_ATTEMPTS";
+           sleep 5;
+          done;
+          echo "Service test successful!";
+      resources:
+        limits:
+          cpu: "100m"
+          memory: "64Mi"
+        requests:
+          cpu: "10m"
+          memory: "32Mi"
+  restartPolicy: Never

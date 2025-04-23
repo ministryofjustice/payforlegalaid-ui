@@ -1,0 +1,21 @@
+name: "Set Kubernetes Context"
+description: "Configures the Kubernetes context"
+
+inputs:
+  kube-namespace:
+    description: "The Kubernetes namespace"
+    required: true
+  kube-cluster:
+    description: "The Kubernetes cluster URL"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set Kubernetes context
+      shell: bash
+      run: |
+        kubectl config set-context ${{ inputs.kube-cluster }} \
+          --cluster=${{ inputs.kube-cluster }} \
+          --user=deploy-user \
+          --namespace=${{ inputs.kube-namespace }}

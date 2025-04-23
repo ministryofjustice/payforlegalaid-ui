@@ -1,0 +1,58 @@
+name: Build Helm Chart
+on:
+  workflow_call:
+    inputs:
+      debug:
+        description: 'Enable debugging'
+        required: false
+        type: boolean
+        default: false
+      chart-dir:
+        description: "The directory where the Helm chart is located"
+        required: true
+        type: string
+      image-tag:
+        description: "The image tag to update in values.yaml"
+        required: true
+        type: string
+      environment:
+        description: 'Target environment (DEV, UAT, PROD)'
+        required: true
+        type: string
+        default: 'DEV'
+
+jobs:
+  build-helm-chart:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'PROD' && 'production' || inputs.environment == 'UAT' && 'UAT' || inputs.environment == 'DEV' && 'development' }}
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate values.yaml
+        uses: './.github/actions/helm/validate'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
+
+      - name: Create or update Helm chart
+        uses: './.github/actions/helm/update'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
+          image-tag: ${{ inputs.image-tag }}
+          values-file: "values.yaml"
+
+      - name: Add build summary
+        uses: './.github/actions/helm/summary'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
+          image-tag: ${{ inputs.image-tag }}
+          values-file: "values.yaml"
+
+      - name: Debug Helm Chart Output
+        if: ${{ inputs.debug }}
+        run: |
+          echo "Helm Chart Version: ${{ inputs.image-tag }}

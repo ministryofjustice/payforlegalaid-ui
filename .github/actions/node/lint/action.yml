@@ -7,7 +7,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: node_modules
-        key: ${{ runner.os }}-node-${{ inputs.cache-key }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
 
@@ -21,6 +21,6 @@ runs:
         npm install eslint-plugin-jsdoc --save-dev
       shell: bash
 
-    - name: Run ESLint8
-      run: npx eslint . --ignore-pattern "**/node_modules/*" --fix
+    - name: Run ESLint
+      run: npx eslint . --ignore-pattern "**/node_modules/*" --ignore-pattern "**/helm_deploy/*" --fix
       shell: bash
