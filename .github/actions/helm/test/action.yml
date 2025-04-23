@@ -1,0 +1,47 @@
+name: "Verify Helm Tests"
+description: "Run Helm tests and verify their completion status"
+inputs:
+  release-name:
+    description: "Name of the Helm release to test"
+    required: true
+  namespace:
+    description: "Kubernetes namespace where release is deployed"
+    required: true
+
+outputs:
+  helm_test_passed:
+    description: 'The Helm test passed'
+    value: ${{ steps.verify-helm-tests.outputs.helm_test_passed }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run and verify Helm tests
+      shell: bash
+      id: verify-helm-tests
+      run: |
+        echo "Running Helm tests..."
+        TEST_OUTPUT=$(helm test ${{ inputs.release-name }} -n ${{ inputs.namespace }} --timeout 300s 2>&1)
+        echo "$TEST_OUTPUT"
+        
+        if echo "$TEST_OUTPUT" | grep -q "Phase:\s*Succeeded"; then
+          echo "✅ Helm tests succeeded (from test output)"
+          echo "helm_test_passed=true" >> $GITHUB_OUTPUT
+        else
+          # Fallback to pod status check for older Helm versions
+          echo "Checking test pod status directly..."
+          TEST_PODS=$(kubectl get pods -n ${{ inputs.namespace }} \
+            -l "app.kubernetes.io/instance=${{ inputs.release-name }}" \
+            --field-selector=status.phase!=Running \
+            -o jsonpath='{.items[?(@.metadata.labels."helm.sh/chart-test")].status.phase}' 2>/dev/null)
+        
+          if echo "$TEST_PODS" | grep -q "Succeeded"; then
+            echo "✅ Helm tests succeeded (from pod status)"
+            echo "helm_test_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Helm tests failed"
+            echo "Last test pods status: $TEST_PODS"
+            echo "helm_test_passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+        fi

@@ -1,0 +1,81 @@
+name: "Create .env File"
+description: "Create a .env file with environment variables."
+inputs:
+  cookie-secret:
+    description: "Cookie secret for the application"
+    required: true
+    type: string
+  api-host:
+    description: "API hostname (e.g., api.example.com)"
+    required: true
+    type: string
+  env-file-path:
+    description: "Path to save .env (default: ./env)"
+    required: false
+    default: "./.env"
+    type: string
+  api-protocol:
+    description: "API protocol (default: http)"
+    required: false
+    default: "http"
+    type: string
+  node-env:
+    description: "Node environment (default: production)"
+    required: false
+    default: "production"
+    type: string
+  rate-limit-max:
+    description: "Max requests per rate limit window (default: 100)"
+    required: false
+    default: "100"
+    type: string
+  rate-window-ms:
+    description: "Rate limit window in milliseconds (default: 900000)"
+    required: false
+    default: "900000"
+    type: string
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        if [[ "${{ inputs.api-protocol }}" != "https" && "${{ inputs.api-protocol }}" != "http" ]]; then
+          echo "❌ api-protocol must be 'http' or 'https' (preferably https)"
+          exit 1
+        fi
+        
+        if [ -z "${{ inputs.cookie-secret }}" ]; then
+          echo "❌ cookie-secret must be provided"
+          exit 1
+        fi
+
+        if [ -e "${{ inputs.env-file-path }}" ]; then
+          echo "❌ .env file already exists at ${{ inputs.env-file-path }}"
+          exit 1
+        fi
+
+    - name: Generate .env
+      shell: bash
+      run: |
+        COOKIE_SECRET_ESCAPED=$(printf '%s\n' "${{ inputs.cookie-secret }}" | sed -e 's/[\/&]/\\&/g')
+        API_HOST_ESCAPED=$(printf '%s\n' "${{ inputs.api-host }}" | sed -e 's/[\/&]/\\&/g')
+        SERVICE_NAME='Get Legal Aid Data'
+        SERVICE_PHASE='Alpha'
+
+        cat <<EOF > "${{ inputs.env-file-path }}"
+        COOKIE_SECRET='$COOKIE_SECRET_ESCAPED'
+        
+        # Rate limiting (100 requests/15 minutes)
+        RATE_LIMIT_MAX=${{ inputs.rate-limit-max }}
+        RATE_WINDOW_MS=${{ inputs.rate-window-ms }}
+        
+        # Deployment
+        NODE_ENV=${{ inputs.node-env }}
+        API_PROTOCOL=${{ inputs.api-protocol }}
+        API_HOST='$API_HOST_ESCAPED'
+        EOF
+
+        echo "✅ Generated .env at ${{ inputs.env-file-path }}"

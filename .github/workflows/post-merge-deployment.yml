@@ -1,0 +1,55 @@
+name: PR Merge Pipeline - Build, Publish & Deploy to envs
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+
+  feature-branch-build:
+    if: github.event.pull_request.merged == true
+    uses: './.github/workflows/feature-branch-ci.yml'
+    with:
+      cookie-secret: 'DummyCookieForTestOnly'
+
+  publish-application-image:
+    needs: feature-branch-build
+    uses: './.github/workflows/build-image-workflow.yml'
+    secrets: inherit
+    with:
+      build-number: ${{github.run_number}}
+      app-version: "0.1.0"
+      chart-dir: './helm_deploy/payforlegalaid-ui'
+      environment: DEV
+      debug: false
+
+  deploy-to-enviroment:
+    needs: publish-application-image
+    uses: './.github/workflows/environment-deployment-workflow.yml'
+    secrets: inherit
+    with:
+      app-version: "0.1.0"
+      name: ${{ needs.publish-application-image.outputs.registry }}
+      build-number: ${{github.run_number}}
+      chart-dir: "./helm_deploy/payforlegalaid-ui"
+      release-name: "payforlegalaid-ui"
+      image-tag: ${{ needs.publish-application-image.outputs.image-tag }}
+      namespace: "laa-get-payments-finance-data-dev"
+      environment: DEV
+      debug: false
+
+  verify-deployment:
+    needs: deploy-to-enviroment
+    uses: './.github/workflows/verify-deployment-workflow.yml'
+    secrets: inherit
+    with:
+      release-name: "payforlegalaid-ui"
+      app-port: 3000
+      namespace: "laa-get-payments-finance-data-dev"
+      environment: DEV
+      debug: false

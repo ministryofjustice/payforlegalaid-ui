@@ -1,5 +1,5 @@
-name: "Build"
-description: "Build the application"
+name: "Test"
+description: "Run tests"
 runs:
   using: "composite"
   steps:
@@ -10,10 +10,13 @@ runs:
       uses: actions/cache@v4
       with:
         path: node_modules
-        key: ${{ runner.os }}-node-${{ inputs.cache-key }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-
     - name: Build the app
       shell: bash
       run: npm run build
+
+    - name: Run tests
+      shell: bash
+      run: npm run test
