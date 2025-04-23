@@ -77,6 +77,16 @@ app.use((req, res, next) => {
   res.once("finish", finishHandler)
   res.once("close", closeHandler)
 
+  // ------------------------------------------------------------------
+  // Failsafe: if NEITHER finish nor close fires within 5 min, clean up
+  // ------------------------------------------------------------------
+  const RESPONSE_TIMEOUT_MS = 5 * 60 * 1000
+  res.setTimeout(RESPONSE_TIMEOUT_MS, () => {
+    logMetrics(598) // 598 - network read timeout
+    res.off("finish", finishHandler)
+    res.off("close", closeHandler)
+  })
+
   next()
 })
 
