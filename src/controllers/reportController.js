@@ -1,5 +1,5 @@
 import { getReports } from "../services/reportService.js"
-import config from "../../config.js"
+import apiClient from "../api/apiClient.js"
 
 /**
  * Renders the homepage with a list of reports.
@@ -16,17 +16,25 @@ export async function showReportsPage(req, res) {
     const data = await getReports()
     console.log("Successfully fetched reports data , {}", data)
 
-    const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`
-    console.log(`Constructing base URL: ${baseURL}`)
+    // Fetch detail for each report to obtain its correct download URL
+    const reports = data.reportList
+      ? await Promise.all(
+          data.reportList.map(async report => {
+            try {
+              const { data: detail } = await apiClient.get(`/reports/${report.id}`)
+              // detail is expected to contain `reportDownloadUrl`
+              return {
+                ...report,
+                reportDownloadUrl: detail.reportDownloadUrl,
+              }
+            } catch (err) {
+              console.error(`Failed to fetch detail for report ${report.id}:`, err.message)
 
-    const reports = data.reportList.map(report => {
-      const downloadUrl = `${baseURL}/csv/${report.id}`
-      console.log(`Generated download URL for report ${report.id}: ${downloadUrl}`)
-      return {
-        ...report,
-        reportDownloadUrl: downloadUrl,
-      }
-    })
+              return { ...report, reportDownloadUrl: "" }
+            }
+          }),
+        )
+      : []
 
     console.log("Rendering reports page with", reports.length, "reports")
     res.render("main/index", { reports })

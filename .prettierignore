@@ -1,7 +1,6 @@
 **/node_modules/*
 **/helm_deploy/*
 **/.github/*
-node_modules/
 dist/
 public/
 src/contracts/

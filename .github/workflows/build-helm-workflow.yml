@@ -31,7 +31,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
+
+      - name: Check if Helm chart exists
+        uses: './.github/actions/helm/check'
+        with:
+          chart-dir: ${{ inputs.chart-dir }}
 
       - name: Validate values.yaml
         uses: './.github/actions/helm/validate'

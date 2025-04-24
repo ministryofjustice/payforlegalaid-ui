@@ -4,36 +4,36 @@ on:
   workflow_call:
     inputs:
       build-number:
-        description: "Build number for the Docker image"
+        description: 'Build number for the Docker image'
         required: true
         type: string
       app-version:
-        description: "UI application version"
+        description: 'UI application version'
         required: true
         type: string
       name:
-        description: "ECR Registry URL"
+        description: 'ECR Registry URL'
         required: true
         type: string
       chart-dir:
-        description: "Path to the Helm chart directory"
+        description: 'Path to the Helm chart directory'
         required: true
         type: string
       release-name:
-        description: "Name of the Helm release"
+        description: 'Name of the Helm release'
         required: true
         type: string
       namespace:
-        description: "Kubernetes namespace for deployment"
+        description: 'Kubernetes namespace for deployment'
         required: true
         type: string
       environment:
-        description: "Target environment (DEV, UAT, PROD)"
+        description: 'Target environment (DEV, UAT, PROD)'
         required: true
         type: string
-        default: "DEV"
+        default: 'DEV'
       debug:
-        description: "Enable debugging"
+        description: 'Enable debugging'
         required: false
         type: boolean
         default: false
@@ -55,33 +55,33 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Writes the Kubernetes certificate to a file
-        uses: "./.github/actions/k8s/ca-cert"
+        uses: './.github/actions/k8s/ca'
         with:
           kube-cert: ${{ secrets[format('KUBE_CERT_{0}', inputs.environment)] }}
 
       - name: Configures the Kubernetes cluster in kubectl
-        uses: "./.github/actions/k8s/configure"
+        uses: './.github/actions/k8s/configure'
         with:
           kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', inputs.environment)] }}
 
       - name: Configures Kubernetes authentication credentials
-        uses: "./.github/actions/k8s/user"
+        uses: './.github/actions/k8s/user'
         with:
           kube-token: ${{ secrets[format('KUBE_TOKEN_{0}', inputs.environment)] }}
 
       - name: Configures the Kubernetes context
-        uses: "./.github/actions/k8s/context"
+        uses: './.github/actions/k8s/contex'
         with:
           kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', inputs.environment)] }}
           kube-namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}
 
       - name: Switches to the configured Kubernetes context
-        uses: "./.github/actions/k8s/select-context"
+        uses: './.github/actions/k8s/select-context'
         with:
           kube-cluster: ${{ secrets[format('KUBE_CLUSTER_{0}', inputs.environment)] }}
 
       - name: Debug Inputs
-        if: ${{ env.debug }}
+        if: ${{ env.DEBUG }}
         run: |
           echo "Registry: ${{ inputs.name }}"
           echo "Chart Directory: ${{ inputs.chart-dir }}"
@@ -89,7 +89,7 @@ jobs:
           echo "Namespace: ${{ inputs.namespace }}"
 
       - name: Deploy Helm chart
-        uses: "./.github/actions/helm/deploy"
+        uses: './.github/actions/helm/deploy'
         with:
           chart-dir: ${{ inputs.chart-dir }}
           release-name: ${{ inputs.release-name }}
@@ -101,4 +101,3 @@ jobs:
           app-version: ${{ inputs.app-version }}
           git-ref: ${{ github.sha }}
           environment: ${{ inputs.environment }}
-

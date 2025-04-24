@@ -1,48 +1,70 @@
 import { showReportsPage } from "./reportController.js"
 import * as reportService from "../services/reportService.js"
+import apiClient from "../api/apiClient.js"
 import config from "../../config.js"
 import { getSampleForPath } from "../utils/contractDataHelper.js"
 
 jest.mock("../services/reportService.js")
+jest.mock("../api/apiClient.js", () => ({ get: jest.fn() }))
 
 describe("showReportsPage", () => {
   let req, res, next
 
+  const listSample = getSampleForPath("/reports", "get", "200")
+  const firstId = listSample.reportList[0].id
+  const detailSample = {
+    ...listSample.reportList[0],
+    reportDownloadUrl: `${config.API_PROTOCOL}://${config.API_HOST}/csv/${firstId}`,
+  }
+
   beforeEach(() => {
     req = {}
-    res = {
-      render: jest.fn(),
-    }
+    res = { render: jest.fn() }
     next = jest.fn()
+    jest.clearAllMocks()
   })
 
-  it("should render the index page with reports on success", async () => {
-    // Generate sample data from the Swagger contract for the /reports GET 200 response.
-    const sampleData = getSampleForPath("/reports", "get", "200")
-
-    // Use the contract-driven sample data in your mock.
-    reportService.getReports.mockResolvedValue(sampleData)
+  it("renders index page with resolved download URLs", async () => {
+    // 1. top‑level list succeeds
+    reportService.getReports.mockResolvedValue(listSample)
+    // 2. detail call for first ID succeeds
+    apiClient.get.mockResolvedValueOnce({ data: detailSample })
 
     await showReportsPage(req, res, next)
 
-    const baseURL = `${config.API_PROTOCOL}://${config.API_HOST}`
-    // Expect that the view 'main/index' is rendered with the reports,
-    // where each report has a reportDownloadUrl generated from the contract sample.
+    expect(apiClient.get).toHaveBeenCalledWith(`/reports/${firstId}`)
     expect(res.render).toHaveBeenCalledWith("main/index", {
-      reports: sampleData.reportList.map(report => ({
-        ...report,
-        reportDownloadUrl: `${baseURL}/csv/${report.id}`,
-      })),
+      reports: [
+        expect.objectContaining({
+          id: firstId,
+          reportDownloadUrl: expect.stringContaining(firstId),
+        }),
+      ],
     })
   })
 
-  it("should render the error page when getReports throws an error", async () => {
-    // Simulate an error in getReports
+  it("falls back to blank downloadUrl when a detail call fails", async () => {
+    reportService.getReports.mockResolvedValue(listSample)
+    // Simulate a failure on the detail request
+    apiClient.get.mockRejectedValueOnce(new Error("boom"))
+
+    await showReportsPage(req, res, next)
+
+    expect(res.render).toHaveBeenCalledWith("main/index", {
+      reports: [
+        expect.objectContaining({
+          id: firstId,
+          reportDownloadUrl: "",
+        }),
+      ],
+    })
+  })
+
+  it("renders error page if the top‑level list call throws", async () => {
     reportService.getReports.mockRejectedValue(new Error("API error"))
 
     await showReportsPage(req, res, next)
 
-    // Expect that the error view is rendered with the correct error details
     expect(res.render).toHaveBeenCalledWith("main/error", {
       status: "An error occurred",
       error: "An error occurred while loading the reports.",
