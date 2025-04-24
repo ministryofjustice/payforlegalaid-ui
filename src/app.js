@@ -8,15 +8,92 @@ import config from "../config"
 import indexRouter from "./routes/index"
 import livereload from "connect-livereload"
 import crypto from "crypto"
+import { httpRequestsTotal, register } from "./utils/metrics.js"
 
 const app = express()
 
 app.use(express.static("public"))
 
 /**
+ * Middleware to capture HTTP requests for Prometheus metrics.
+ *
+ * This middleware listens for both "finish" (normal completion) and "close" (aborted connection) events on the response object and then increments
+ * the `httpRequestsTotal` counter. The counter is updated with labels for the HTTP method, the
+ * request path, and the response status code. This helps to differentiate between successful
+ * responses (2xx), client errors (4xx), and server errors (5xx).
+ */
+
+app.use((req, res, next) => {
+  // Determine the report type from the request (defaults to "unknown")
+  const reportType = req.query.report_type || "unknown"
+
+  /**
+   * Increment the {@link httpRequestsTotal} counter for this request.
+   *
+   * @param {number} [statusOverride] - Optional HTTP‑status code to record
+   *   instead of `res.statusCode`.  Pass `499` when the client aborts the
+   *   connection; otherwise leave it `undefined` so the real response status
+   *   is used.
+   * @returns {void}
+   */
+  const logMetrics = statusOverride => {
+    httpRequestsTotal.inc({
+      method: req.method,
+      path: req.path,
+      status: String(statusOverride ?? res.statusCode),
+      report_type: reportType,
+    })
+  }
+
+  /**
+   * Handler for the "finish" event on the response.
+   *
+   * When the response finishes normally, this handler calls logMetrics to record the metrics
+   * and then removes the "close" listener to prevent duplicate cleanup.
+   *
+   * @returns {void}
+   */
+  const finishHandler = () => {
+    logMetrics()
+    // Remove the "close" listener so that it won't be called later.
+    res.off("close", closeHandler)
+  }
+
+  /**
+   * Handler for the "close" event on the response.
+   *
+   * If the connection is aborted before the response finishes, this handler removes the "finish"
+   * listener to prevent it from firing later.
+   *
+   * @returns {void}
+   */
+  const closeHandler = () => {
+    logMetrics(499)
+    // Remove the "finish" listener if the response did not complete normally.
+    res.off("finish", finishHandler)
+  }
+
+  // Use `once` to ensure each handler only fires one time per request.
+  res.once("finish", finishHandler)
+  res.once("close", closeHandler)
+
+  // ------------------------------------------------------------------
+  // Failsafe: if NEITHER finish nor close fires within 5 min, clean up
+  // ------------------------------------------------------------------
+  const RESPONSE_TIMEOUT_MS = 5 * 60 * 1000
+  res.setTimeout(RESPONSE_TIMEOUT_MS, () => {
+    logMetrics(598) // 598 - network read timeout
+    res.off("finish", finishHandler)
+    res.off("close", closeHandler)
+  })
+
+  next()
+})
+
+/**
  * Generate a nonce for every request and attach it to res.locals
  * We use 16 bytes which is common in cryptographic contexts.
- * It provides 128 bits of entropy which is considered secure enough for generating nonces.
+ * It provides 128 bits of entropy which is considered secure enough for generating nonce's.
  * It’s long enough to make the nonce unpredictable while still being efficient to generate.
  */
 app.use((req, res, next) => {
@@ -117,6 +194,24 @@ app.use(morgan("dev"))
 app.use("/", indexRouter)
 
 /**
+ * Expose Prometheus metrics at the '/metrics' endpoint.
+ * Prometheus will scrape this endpoint to gather performance and usage data.
+ */
+app.get("/metrics", async (req, res) => {
+  try {
+    res.set("Content-Type", register.contentType)
+    res.end(await register.metrics())
+  } catch (err) {
+    console.error("Metrics endpoint error:", err)
+    if (process.env.NODE_ENV === "production") {
+      res.status(500).end("Internal Server Error")
+    } else {
+      res.status(500).end(err.toString())
+    }
+  }
+})
+
+/**
  * Enables live-reload middleware in development mode to automatically reload
  * the server when changes are detected.
  */
@@ -131,3 +226,5 @@ if (process.env.NODE_ENV === "development") {
 app.listen(config.app.port, () => {
   console.log(`Server running on port ${config.app.port}`)
 })
+
+export default app

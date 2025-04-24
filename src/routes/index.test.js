@@ -4,7 +4,12 @@ import router from "../routes/index"
 import * as reportController from "../controllers/reportController"
 import * as healthController from "../controllers/healthController"
 
-jest.mock("../controllers/reportController")
+// Mock the controller
+jest.mock("../controllers/reportController.js", () => ({
+  showReportsPage: jest.fn((req, res) => res.send("Mocked Report Page")),
+}))
+
+import { showReportsPage } from "../controllers/reportController.js"
 jest.mock("../controllers/healthController")
 
 describe("Router Tests", () => {
