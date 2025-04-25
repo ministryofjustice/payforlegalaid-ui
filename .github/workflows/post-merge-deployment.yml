@@ -26,6 +26,7 @@ jobs:
       app-version: "0.1.0"
       chart-dir: './helm_deploy/payforlegalaid-ui'
       environment: DEV
+      app-host: "dev.get-legal-aid-data.service.justice.gov.uk"
       debug: false
 
   deploy-to-enviroment:
@@ -37,9 +38,9 @@ jobs:
       name: ${{ needs.publish-application-image.outputs.registry }}
       build-number: ${{github.run_number}}
       chart-dir: "./helm_deploy/payforlegalaid-ui"
+      manifest: ${{ needs.publish-application-image.outputs.helm_manifest }}
       release-name: "payforlegalaid-ui"
       image-tag: ${{ needs.publish-application-image.outputs.image-tag }}
-      namespace: "laa-get-payments-finance-data-dev"
       environment: DEV
       debug: false
 
@@ -49,7 +50,5 @@ jobs:
     secrets: inherit
     with:
       release-name: "payforlegalaid-ui"
-      app-port: 3000
-      namespace: "laa-get-payments-finance-data-dev"
       environment: DEV
       debug: false

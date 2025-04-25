@@ -59,7 +59,7 @@ service:
   port: 3000
   targetPort: 3000
 
-namespace: laa-get-payments-finance-data-dev  # Add this field for the release namespace
+namespace: ''
 
 
 ingress:
@@ -85,7 +85,7 @@ ingress:
   clusterColor: green
   affinity: cookie
   rules:
-    - host: payforlegalaid-ui.apps.live.cloud-platform.service.justice.gov.uk
+    - host:
       http:
         paths:
           - path: /
@@ -97,7 +97,7 @@ ingress:
                   number: 3000
   tls:
     - hosts:
-        - payforlegalaid-ui.apps.live.cloud-platform.service.justice.gov.uk
+        -
       secretName: tls-certificate
 
 resources: {}

@@ -15,14 +15,23 @@ on:
         description: "The image tag to update in values.yaml"
         required: true
         type: string
+      app-host:
+        description: "The hostname for the Kubernetes Ingress (e.g., 'app.example.com')"
+        required: true
+        type: string
       environment:
         description: 'Target environment (DEV, UAT, PROD)'
         required: true
         type: string
         default: 'DEV'
 
+    outputs:
+      helm_manifest:
+        description: "Base64-encoded custom values.yaml for Helm (overrides defaults)"
+        value: ${{ jobs.build_helm_chart.outputs.helm_manifest }}
+
 jobs:
-  build-helm-chart:
+  build_helm_chart:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment == 'PROD' && 'production' || inputs.environment == 'UAT' && 'UAT' || inputs.environment == 'DEV' && 'development' }}
     timeout-minutes: 5
@@ -39,10 +48,13 @@ jobs:
           chart-dir: ${{ inputs.chart-dir }}
 
       - name: Create or update Helm chart
+        id: update-config
         uses: './.github/actions/helm/update'
         with:
           chart-dir: ${{ inputs.chart-dir }}
           image-tag: ${{ inputs.image-tag }}
+          namespace:  ${{ secrets[format('KUBE_CERT_{0}', inputs.environment)] }}
+          app-host: ${{ inputs.app-host }}
           values-file: "values.yaml"
 
       - name: Add build summary
@@ -55,4 +67,8 @@ jobs:
       - name: Debug Helm Chart Output
         if: ${{ inputs.debug }}
         run: |
-          echo "Helm Chart Version: ${{ inputs.image-tag }}
+          echo "Helm Maniifest: ${{ steps.update-config.outputs.helm_manifest }}"
+          echo "Helm Chart Version: ${{ inputs.image-tag }}"
+
+    outputs:
+      helm_manifest: ${{ steps.update-config.outputs.helm_manifest }}
