@@ -23,10 +23,6 @@ on:
         description: "Name of the Helm release"
         required: true
         type: string
-      namespace:
-        description: "Kubernetes namespace for deployment"
-        required: true
-        type: string
       environment:
         description: "Target environment (DEV, UAT, PROD)"
         required: true
@@ -39,6 +35,10 @@ on:
         default: false
       image-tag:
         description: "The image for deployment"
+        required: true
+        type: string
+      manifest:
+        description: "Base64-encoded custom values.yaml for Helm (overrides defaults)"
         required: true
         type: string
 
@@ -86,14 +86,14 @@ jobs:
           echo "Registry: ${{ inputs.name }}"
           echo "Chart Directory: ${{ inputs.chart-dir }}"
           echo "Release Name: ${{ inputs.release-name }}"
-          echo "Namespace: ${{ inputs.namespace }}"
+          echo "Manifest: ${{ inputs.manifest }}"
 
       - name: Deploy Helm chart
         uses: "./.github/actions/helm/deploy"
         with:
           chart-dir: ${{ inputs.chart-dir }}
           release-name: ${{ inputs.release-name }}
-          namespace: ${{ inputs.namespace }}
+          namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}
           repository: ${{ vars[format('{0}_ECR_REPOSITORY', inputs.environment)] }}
           image-tag: ${{ inputs.image-tag }}
           registry: ${{ inputs.name }}
@@ -101,4 +101,7 @@ jobs:
           app-version: ${{ inputs.app-version }}
           git-ref: ${{ github.sha }}
           environment: ${{ inputs.environment }}
+          manifest: ${{ inputs.manifest }}
+
+
 

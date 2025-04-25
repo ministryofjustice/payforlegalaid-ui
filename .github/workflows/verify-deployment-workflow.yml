@@ -7,10 +7,6 @@ on:
         description: "Name of the Helm release to check"
         required: true
         type: string
-      namespace:
-        description: "Kubernetes namespace to check"
-        required: true
-        type: string
       environment:
         description: "Target environment (DEV, UAT, PROD)"
         required: true
@@ -68,21 +64,21 @@ jobs:
         uses: "./.github/actions/helm/verify"
         with:
           release-name: ${{ inputs.release-name }}
-          namespace: ${{ inputs.namespace }}
+          namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}
 
       - name: Verify pods are running
         id: check-pods
         uses: "./.github/actions/k8s/verify-running-pods"
         with:
           release-name: ${{ inputs.release-name }}
-          namespace: ${{ inputs.namespace }}
+          namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}
 
       - name: Run Helm tests
         uses: "./.github/actions/helm/test"
         id: helm-test
         with:
           release-name: ${{ inputs.release-name }}
-          namespace: ${{ inputs.namespace }}
+          namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}
 
       - name: Debug Helm Chart Output
         if: ${{ inputs.debug }}
@@ -92,7 +88,7 @@ jobs:
           echo "├──────────────────────────────────────────────────────────────┤"
           echo "│ ℹ️ Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")            │"
           echo "│ ℹ️ Release: ${{ inputs.release-name }}                       │"
-          echo "│ ℹ️ Namespace: ${{ inputs.namespace }}                        │"
+          echo "│ ℹ️ Namespace:  ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}                        │"
           echo "│ ℹ️ Release Result: ${{ toJSON(steps.check-release.outputs) }}│"
           echo "│ ℹ️ Pods Result: ${{ toJSON(steps.check-pods.outputs) }}      │"
           echo "│ ℹ️ Helm Tests: ${{ toJSON(steps.helm-test.outputs) }}        │"
@@ -103,7 +99,7 @@ jobs:
         uses: "./.github/actions/helm/deployment-summary"
         with:
           release-name: ${{ inputs.release-name }}
-          namespace: ${{ inputs.namespace }}
+          namespace: ${{ secrets[format('KUBE_NAMESPACE_{0}', inputs.environment)] }}
           release-exists: ${{ steps.check-release.outputs.release_exists }}
           pods-running: ${{ steps.check-pods.outputs.pods_running }}
           helm-test-passed: ${{ steps.helm-test.outputs.helm_test_passed }}

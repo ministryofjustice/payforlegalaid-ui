@@ -32,6 +32,9 @@ describe("healthCheck", () => {
   it("should handle errors and respond with 503 status", async () => {
     const realDate = Date
     global.Date = class extends Date {
+      /**
+       *
+       */
       constructor() {
         super()
         throw new Error("Date creation failed")

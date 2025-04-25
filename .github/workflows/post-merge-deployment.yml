@@ -1,9 +1,9 @@
 name: PR Merge Pipeline - Build, Publish & Deploy to envs
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [main]
+  push:
+    branches:
+      - 'feature/LPF-817'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.pull_request.number }}
@@ -12,7 +12,6 @@ concurrency:
 jobs:
 
   feature-branch-build:
-    if: github.event.pull_request.merged == true
     uses: './.github/workflows/feature-branch-ci.yml'
     with:
       cookie-secret: 'DummyCookieForTestOnly'
@@ -26,6 +25,7 @@ jobs:
       app-version: "0.1.0"
       chart-dir: './helm_deploy/payforlegalaid-ui'
       environment: DEV
+      app-host: "dev.get-legal-aid-data.service.justice.gov.uk"
       debug: false
 
   deploy-to-enviroment:
@@ -37,9 +37,9 @@ jobs:
       name: ${{ needs.publish-application-image.outputs.registry }}
       build-number: ${{github.run_number}}
       chart-dir: "./helm_deploy/payforlegalaid-ui"
+      manifest: ${{ needs.publish-application-image.outputs.helm_manifest }}
       release-name: "payforlegalaid-ui"
       image-tag: ${{ needs.publish-application-image.outputs.image-tag }}
-      namespace: "laa-get-payments-finance-data-dev"
       environment: DEV
       debug: false
 
@@ -49,7 +49,5 @@ jobs:
     secrets: inherit
     with:
       release-name: "payforlegalaid-ui"
-      app-port: 3000
-      namespace: "laa-get-payments-finance-data-dev"
       environment: DEV
       debug: false
