@@ -16,3 +16,9 @@ dist/
 
 # VS Code folders
 .vscode/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
