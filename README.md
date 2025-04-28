@@ -132,14 +132,6 @@ npm test
 
 Playwright specs live in **`tests/`** (e.g. `tests/test.spec.js`) and are configured via `playwright.config.js`.
 
-### CI / CD
-
-GitHub Actions executes the browser tests on every push & PR:
-
-```bash
-.github/workflows/e2e.yml
-```
-
 ## Technology stack
 
 - Javascript

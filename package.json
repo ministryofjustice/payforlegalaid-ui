@@ -15,9 +15,7 @@
     "dev": "nodemon --watch src --ext js,scss --exec 'node start-server.js'",
     "test": "jest",
     "format:check": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "e2e": "npx playwright test --reporter=line,html",
-    "ci:e2e": "npx playwright install --with-deps && npm run build && npm run e2e"
+    "format:fix": "prettier --write ."
   },
   "engines": {
     "node": "22.13.1"
