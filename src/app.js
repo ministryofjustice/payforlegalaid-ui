@@ -1,7 +1,7 @@
 import express from "express"
 import morgan from "morgan"
 import compression from "compression"
-import { setupCsrf, helmetSetup, setupConfig, setupMiddlewares } from "./middleware"
+import { setupCsrf, setUpWebSecurity, setupConfig, setupMiddlewares } from "./middleware"
 import session from "express-session"
 import { nunjucksSetup, rateLimitSetUp } from "./utils"
 import config from "../config"
@@ -91,21 +91,13 @@ app.use((req, res, next) => {
 })
 
 /**
- * Generate a nonce for every request and attach it to res.locals
- * We use 16 bytes which is common in cryptographic contexts.
- * It provides 128 bits of entropy which is considered secure enough for generating nonce's.
- * It’s long enough to make the nonce unpredictable while still being efficient to generate.
- */
-app.use((req, res, next) => {
-  res.locals.cspNonce = crypto.randomBytes(16).toString("base64")
-  next()
-})
-
-/**
  * Sets up common middleware for handling cookies, body parsing, etc.
  * @param {import('express').Application} app - The Express application instance.
  */
 setupMiddlewares(app)
+
+// Set up web security (nonce generation + CSP configuration)
+app.use(setUpWebSecurity())
 
 /**
  * Response compression setup. Compresses responses unless the 'x-no-compression' header is present.
@@ -131,13 +123,6 @@ app.use(
     },
   }),
 )
-
-/**
- * Sets up security headers using Helmet to protect the app from well-known web vulnerabilities.
- *
- * @param {import('express').Application} app - The Express application instance.
- */
-helmetSetup(app)
 
 // Reducing fingerprinting by removing the 'x-powered-by' header
 app.disable("x-powered-by")

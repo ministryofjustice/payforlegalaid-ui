@@ -107,7 +107,30 @@ When you navigate to http://localhost:3000/metrics, you’ll see output in plain
 
 Unit tests are using Jest.
 They can be run with the command
-`npm test`
+```
+npm test
+```
+### End‑to‑end tests (Playwright)
+
+1. **Start the UI locally**
+
+   ```bash
+   npm run dev
+   ```
+
+2. **Run the browser tests in another terminal**
+
+   ```bash
+   npx playwright test
+   ```
+
+   > **First run only:**  
+   > Download the Playwright browser binaries with
+   > ```bash
+   > npx playwright install --with-deps
+   > ```
+
+Playwright specs live in **`tests/`** (e.g. `tests/homepage.spec.js`) and are configured via `playwright.config.js`.
 
 ## Technology stack
 
