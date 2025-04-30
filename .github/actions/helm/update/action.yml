@@ -15,6 +15,16 @@ inputs:
     description: "Name of values file (default: values.yaml)"
     default: "values.yaml"
     required: false
+  namespace:
+    description: "The Kubernetes namespace for deployment"
+    required: true
+  app-host:
+    description: "The hostname for the Kubernetes Ingress (e.g., 'app.example.com')"
+    required: true
+outputs:
+  helm_manifest:
+    description: '"Base64-encoded custom values.yaml for Helm (overrides defaults)"'
+    value: ${{ steps.update-config.outputs.helm_manifest }}
 
 runs:
   using: "composite"
@@ -48,25 +58,27 @@ runs:
         fi
 
     - name: Update values file
+      id: update-config
       shell: bash
       run: |
         VALUES_PATH="${{ inputs.chart-dir }}/${{ inputs.values-file }}"
+        APP_NAMESPACE=${{ inputs.namespace }}
+        APP_HOST="${{ inputs.app-host }}" 
         
         if [ ! -f "$VALUES_PATH" ]; then
           echo "::error::Values file not found: $VALUES_PATH"
           exit 1
         fi
-
-        CURRENT_TAG=$(yq e '.image.tag' "$VALUES_PATH")
-        echo "Current image tag: $CURRENT_TAG"
-        echo "New image tag: ${{ inputs.image-tag }}"
-
-        yq e ".image.tag = \"${{ inputs.image-tag }}\"" -i "$VALUES_PATH"
-
-        UPDATED_TAG=$(yq e '.image.tag' "$VALUES_PATH")
-        if [ "$UPDATED_TAG" != "${{ inputs.image-tag }}" ]; then
-          echo "::error::Failed to update image tag in $VALUES_PATH"
+    
+        yq eval ".image.tag = \"${{ inputs.image-tag }}\"" -i "$VALUES_PATH" || {
+          echo "::error::Failed to update image tag"
           exit 1
-        fi
-
-        echo "::notice::Successfully updated ${{ inputs.values-file }} from $CURRENT_TAG to $UPDATED_TAG"
+        }
+        
+        yq eval ".namespace = \"$APP_NAMESPACE\"" -i "$VALUES_PATH"
+        yq eval ".ingress.rules[0].host = \"$APP_HOST\"" -i "$VALUES_PATH"
+        yq eval ".ingress.tls[0].hosts[0] = \"$APP_HOST\"" -i "$VALUES_PATH"
+        
+        ENV_FILE="$(cat "$VALUES_PATH" | base64 -w 0)"
+        
+        echo "helm_manifest=$ENV_FILE" >> $GITHUB_OUTPUT

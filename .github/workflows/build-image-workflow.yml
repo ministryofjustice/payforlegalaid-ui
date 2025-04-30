@@ -27,6 +27,10 @@ on:
         required: true
         type: string
         default: 'DEV'
+      app-host:
+        description: "The hostname for the Kubernetes Ingress (e.g., 'app.example.com')"
+        required: true
+        type: string
     outputs:
       registry:
         description: 'ECR Registry URL'
@@ -34,9 +38,9 @@ on:
       image-tag:
         description: 'Docker image tag'
         value: ${{ jobs.build-docker.outputs.image-tag }}
-      helm-chart-version:
-        description: 'Helm chart version'
-        value: ${{ jobs.build-helm-chart.outputs.helm-chart-version }}
+      helm_manifest:
+        description: "Base64-encoded custom values.yaml for Helm (overrides defaults)"
+        value: ${{ jobs.build-helm-chart.outputs.helm_manifest }}
 
 jobs:
   build-docker:
@@ -56,3 +60,4 @@ jobs:
       image-tag: ${{ needs.build-docker.outputs.image-tag }}
       debug: ${{ inputs.debug }}
       environment: ${{ inputs.environment }}
+      app-host: ${{ inputs.app-host }}

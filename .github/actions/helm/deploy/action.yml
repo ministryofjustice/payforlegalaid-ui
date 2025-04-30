@@ -31,6 +31,10 @@ inputs:
   registry:
     description: "ECR Registry URL"
     required: true
+  manifest:
+    description: "Base64-encoded custom values.yaml for Helm (overrides defaults)"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -64,10 +68,12 @@ runs:
         RELEASE_NAME="${{ inputs.release-name }}"
         NAMESPACE="${{ inputs.namespace }}"
         REPOSITORY="${{ inputs.registry }}/${{ inputs.repository }}"
+        echo ${{ inputs.manifest }} | base64 -d > new-values.yaml
         
         echo "Deploying Helm chart..."
         helm upgrade --install $RELEASE_NAME $CHART_DIR \
           --namespace $NAMESPACE \
+          -f new-values.yaml \
           --set image.repository=$REPOSITORY \
           --set image.tag=${{ inputs.image-tag }} \
           --set build.number=${{ inputs.build-number }} \
