@@ -26,6 +26,12 @@ const config = {
   // The directory where Jest should output its coverage files
   coverageDirectory: "coverage",
 
+  // Tell Jest to ignore Playwright E2E specs
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "<rootDir>/test-e2e/", // or "<rootDir>/tests-e2e/" – use your folder name
+  ],
+
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
   //   "/node_modules/"
